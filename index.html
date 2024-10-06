@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presente Surpresa😍</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <!-- Link para a fonte "Dancing Script" -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+    <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Configuração do body com Flexbox para centralização */
+        body {
+            background-color: black;
+            color: #c61c44; /* Cor do texto */
+            font-family: 'Dancing Script', cursive; /* Fonte romântica */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden; /* Esconde elementos que saem da viewport */
+            position: relative;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #c61c44; /* Cor do título */
+            margin-bottom: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            color: white;
+            background: linear-gradient(135deg, #c61c44, #b10d37); /* Gradiente de cor */
+            border: none;
+            border-radius: 25px; /* Cantos arredondados */
+            text-decoration: none;
+            margin-top: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transições para animação */
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Sombra para dar profundidade */
+        }
+
+        .button:hover {
+            transform: translateY(-3px); /* Efeito de elevação */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Aumenta a sombra ao passar o mouse */
+        }
+
+        .gift {
+            display: none;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Barras de carregamento do presente */
+        .gift:before, .gift:after {
+            content: '';
+            position: absolute;
+            background: #c61c44; /* Cor das barras de carregamento */
+            height: 10px;
+            border-radius: 5px;
+            animation: loadBar 7s forwards; /* Duração da animação igual à duração do áudio */
+        }
+
+        .gift:before {
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; /* Começa com largura 0 */
+            animation-delay: 0.5s;
+        }
+
+        .gift:after {
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; /* Começa com largura 0 */
+            animation-delay: 0.5s;
+        }
+
+        @keyframes loadBar {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+
+        .gift img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ajustado para conter a imagem sem cortar */
+            border-radius: 10px;
+        }
+
+        .message {
+            display: none;
+            font-size: 2em; /* Aumenta o tamanho da fonte para destaque */
+            margin-top: 20px;
+            color: #c61c44; /* Cor da mensagem */
+            font-weight: bold; /* Deixa a frase em negrito */
+            text-shadow: 0 0 5px #c61c44; /* Adiciona sombra para destaque */
+            opacity: 0;
+            animation: shine 3s forwards;
+        }
+
+        /* Animação de brilho na frase de amor */
+        @keyframes shine {
+            0% {
+                text-shadow: 0 0 5px #c61c44, 0 0 10px #c61c44, 0 0 15px #c61c44, 0 0 20px #c61c44;
+                opacity: 0.5;
+            }
+            100% {
+                text-shadow: 0 0 10px #ff99cc, 0 0 15px #ff99cc, 0 0 20px #ff99cc, 0 0 25px #ff99cc;
+                opacity: 0.8;
+            }
+        }
+
+        /* Animação de cortina */
+        .curtain {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background-color: #c61c44; /* Cor das cortinas */
+            z-index: 1000; /* Certifica que as cortinas fiquem acima de tudo */
+            animation: curtain 2s forwards ease-in-out;
+        }
+
+        .curtain.left {
+            left: 0;
+            animation-delay: 0s;
+        }
+
+        .curtain.right {
+            right: 0;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes curtain {
+            0% {
+                width: 50%;
+            }
+            100% {
+                width: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cortinas -->
+    <div class="curtain left"></div>
+    <div class="curtain right"></div>
+
+    <!-- Conteúdo Principal -->
+    <div class="content">
+        <h1>Para Você, Mari</h1>
+        
+        <button class="button" onclick="openGift()">Colete seu presente</button>
+    
+        <div class="gift" id="giftBox">
+            <img src="presente.png" alt="Presente" />
+        </div>
+        <div class="message" id="message"></div> <!-- Mensagem inicializada vazia -->
+    </div>
+
+    <!-- Áudio de fundo -->
+    <audio id="backgroundAudio" src="musica.mp3" preload="auto"></audio>
+
+    <script>
+        // Variáveis para personalizar a mensagem
+        const loveMessage = "Você ganhou meu amor eterno! ❤️"; // Mensagem de amor
+        const extraMessage = "❤️ Espero que tenha gostado!"; // Mensagem extra (opcional)
+
+        function openGift() {
+            const giftBox = document.getElementById('giftBox');
+            const message = document.getElementById('message');
+            const audio = document.getElementById('backgroundAudio');
+
+            // Reproduz o áudio
+            audio.currentTime = 0; // Reinicia o áudio
+            audio.play();
+
+            // Mostra o presente
+            giftBox.style.display = 'block';
+            message.style.display = 'none'; // Oculta a mensagem inicialmente
+
+            // Monta a mensagem final
+            message.innerHTML = `${loveMessage}<br>${extraMessage}`; // Exibe a mensagem
+
+            // Mostrar a mensagem após o áudio terminar
+            audio.onended = () => {
+                message.style.display = 'block'; // Exibe a mensagem
+                // Adiciona uma pequena transição para a animação de brilho
+                setTimeout(() => {
+                    message.style.opacity = '1';
+                }, 100);
+            };
+        }
+
+        // Remover as cortinas após a animação terminar
+        window.addEventListener('load', () => {
+            const curtains = document.querySelectorAll('.curtain');
+            curtains.forEach(curtain => {
+                curtain.addEventListener('animationend', () => {
+                    curtain.style.display = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
