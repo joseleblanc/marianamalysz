@@ -107,16 +107,16 @@
 
         .message {
             display: none;
-            font-size: 2em; /* Aumenta o tamanho da fonte para destaque */
+            font-size: 2em; /* Tamanho da fonte das mensagens principais */
             margin-top: 20px;
             color: #c61c44; /* Cor da mensagem */
             font-weight: bold; /* Deixa a frase em negrito */
-            text-shadow: 0 0 5px #c61c44; /* Adiciona sombra para destaque */
+            text-shadow: 0 0 5px #c61c44; /* Adiciona sombra para as mensagens principais */
             opacity: 0;
             animation: shine 3s forwards;
         }
 
-        /* Animação de brilho na frase de amor */
+        /* Animação de brilho para as mensagens principais */
         @keyframes shine {
             0% {
                 text-shadow: 0 0 5px #c61c44, 0 0 10px #c61c44, 0 0 15px #c61c44, 0 0 20px #c61c44;
@@ -126,6 +126,27 @@
                 text-shadow: 0 0 10px #ff99cc, 0 0 15px #ff99cc, 0 0 20px #ff99cc, 0 0 25px #ff99cc;
                 opacity: 0.8;
             }
+        }
+
+        .citation {
+            display: none;
+            font-size: 1.3em; /* Tamanho da fonte da citação */
+            margin-top: 20px;
+            color: #c61c44; /* Cor da citação */
+            font-style: italic; /* Estilo da citação */
+            text-align: left;
+            position: absolute; /* Usar position absolute para controle de localização */
+            top: 550px; /* Ajuste a altura a partir do topo */
+            left: 1250px; /* Ajuste a distância a partir da esquerda */
+            width: 250px; /* Ajuste a largura */
+            height: auto; /* Altura automática para se ajustar ao conteúdo */
+            line-height: 1.5em;
+            white-space: pre-line;
+}
+
+        /* Estilo para distribuir 3 palavras por linha */
+        .citation span {
+            display: block;
         }
 
         /* Animação de cortina */
@@ -174,6 +195,7 @@
             <img src="presente.png" alt="Presente" />
         </div>
         <div class="message" id="message"></div> <!-- Mensagem inicializada vazia -->
+        <div class="citation" id="citation"></div> <!-- Citação adicionada -->
     </div>
 
     <!-- Áudio de fundo -->
@@ -183,10 +205,12 @@
         // Variáveis para personalizar a mensagem
         const loveMessage = "Você ganhou meu amor eterno! ❤️"; // Mensagem de amor
         const extraMessage = "❤️ Espero que tenha gostado!"; // Mensagem extra (opcional)
+        const citationText = "\"Foram mais de 5 horas fazendo algo que possa lhe agradar. Não quero te forçar a nada, apenas demonstrar o quanto o tempo me fez perceber o quanto você é especial para mim!\""; // Texto da citação dividido
 
         function openGift() {
             const giftBox = document.getElementById('giftBox');
             const message = document.getElementById('message');
+            const citation = document.getElementById('citation');
             const audio = document.getElementById('backgroundAudio');
 
             // Reproduz o áudio
@@ -196,17 +220,23 @@
             // Mostra o presente
             giftBox.style.display = 'block';
             message.style.display = 'none'; // Oculta a mensagem inicialmente
+            citation.style.display = 'none'; // Oculta a citação inicialmente
 
             // Monta a mensagem final
             message.innerHTML = `${loveMessage}<br>${extraMessage}`; // Exibe a mensagem
 
-            // Mostrar a mensagem após o áudio terminar
+            // Dividindo a citação em 3 palavras por linha
+            const words = citationText.split(' ');
+            let formattedCitation = '';
+            for (let i = 0; i < words.length; i += 3) {
+                formattedCitation += `<span>${words.slice(i, i + 3).join(' ')}</span>`;
+            }
+            citation.innerHTML = formattedCitation;
+
+            // Mostrar a mensagem e a citação após o áudio terminar
             audio.onended = () => {
-                message.style.display = 'block'; // Exibe a mensagem
-                // Adiciona uma pequena transição para a animação de brilho
-                setTimeout(() => {
-                    message.style.opacity = '1';
-                }, 100);
+                message.style.display = 'block'; // Exibe a mensagem com brilho
+                citation.style.display = 'block'; // Exibe a citação sem brilho
             };
         }
 
