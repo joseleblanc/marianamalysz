@@ -14,17 +14,16 @@
             box-sizing: border-box;
         }
 
-        /* Configuração do body com Flexbox para centralização */
         body {
             background-color: black;
-            color: #c61c44; /* Cor do texto */
-            font-family: 'Dancing Script', cursive; /* Fonte romântica */
+            color: #c61c44;
+            font-family: 'Dancing Script', cursive;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            overflow: hidden; /* Esconde elementos que saem da viewport */
+            overflow: hidden;
             position: relative;
             padding: 20px;
             text-align: center;
@@ -32,7 +31,7 @@
 
         h1 {
             font-size: 3em;
-            color: #c61c44; /* Cor do título */
+            color: #c61c44;
             margin-bottom: 20px;
         }
 
@@ -41,19 +40,19 @@
             padding: 15px 30px;
             font-size: 1.2em;
             color: white;
-            background: linear-gradient(135deg, #c61c44, #b10d37); /* Gradiente de cor */
+            background: linear-gradient(135deg, #c61c44, #b10d37);
             border: none;
-            border-radius: 25px; /* Cantos arredondados */
+            border-radius: 25px;
             text-decoration: none;
             margin-top: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transições para animação */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Sombra para dar profundidade */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .button:hover {
-            transform: translateY(-3px); /* Efeito de elevação */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Aumenta a sombra ao passar o mouse */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
 
         .gift {
@@ -70,17 +69,17 @@
         .gift:before, .gift:after {
             content: '';
             position: absolute;
-            background: #c61c44; /* Cor das barras de carregamento */
+            background: #c61c44;
             height: 10px;
             border-radius: 5px;
-            animation: loadBar 7s forwards; /* Duração da animação igual à duração do áudio */
+            animation: loadBar 7s forwards;
         }
 
         .gift:before {
             top: -15px;
             left: 50%;
             transform: translateX(-50%);
-            width: 0; /* Começa com largura 0 */
+            width: 0;
             animation-delay: 0.5s;
         }
 
@@ -88,7 +87,7 @@
             bottom: -15px;
             left: 50%;
             transform: translateX(-50%);
-            width: 0; /* Começa com largura 0 */
+            width: 0;
             animation-delay: 0.5s;
         }
 
@@ -100,62 +99,56 @@
         .gift img {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Ajustado para conter a imagem sem cortar */
+            object-fit: contain;
             border-radius: 10px;
         }
 
         .message {
             display: none;
-            font-size: 2em; /* Tamanho da fonte das mensagens principais */
+            font-size: 1.8em; /* Tamanho da fonte das mensagens principais */
             margin-top: 20px;
-            color: #c61c44; /* Cor da mensagem */
-            font-weight: bold; /* Deixa a frase em negrito */
-            text-shadow: 0 0 5px #c61c44; /* Adiciona sombra para as mensagens principais */
+            color: #c61c44;
+            font-weight: bold;
             opacity: 0;
             animation: shine 3s forwards;
         }
 
-        /* Animação de brilho para as mensagens principais */
         @keyframes shine {
             0% {
-                text-shadow: 0 0 5px #c61c44, 0 0 10px #c61c44, 0 0 15px #c61c44, 0 0 20px #c61c44;
                 opacity: 0.5;
             }
             100% {
-                text-shadow: 0 0 10px #ff99cc, 0 0 15px #ff99cc, 0 0 20px #ff99cc, 0 0 25px #ff99cc;
-                opacity: 0.8;
+                opacity: 1;
             }
         }
 
         .citation {
             display: none;
-            font-size: 1.3em; /* Tamanho da fonte da citação */
-            margin-top: 20px;
-            color: #c61c44; /* Cor da citação */
+            font-size: 1.0em; /* Tamanho da fonte da citação */
+            color: #c61c44;
             font-style: italic; /* Estilo da citação */
-            text-align: left;
-            position: absolute; /* Usar position absolute para controle de localização */
-            top: 50%; /* Ajuste a altura a partir do topo */
-            left: 50px; /* Ajuste a distância a partir da esquerda */
-            width: 250px; /* Definir uma largura adequada */
-            transform: translateY(-50%); /* Centraliza verticalmente */
+            margin-left: 20px; /* Espaço à esquerda da citação */
             line-height: 1.5em;
-            white-space: pre-line;
+            max-width: 250px; /* Ajuste a largura para evitar rolagem */
         }
 
-        /* Estilo para distribuir 3 palavras por linha */
         .citation span {
-            display: block;
+            display: block; /* Distribui 3 palavras por linha */
         }
 
-        /* Animação de cortina */
+        .message-citation-container {
+            display: flex; /* Usar flexbox para alinhar a mensagem e a citação */
+            align-items: center; /* Centraliza verticalmente */
+            justify-content: center; /* Centraliza horizontalmente */
+        }
+
         .curtain {
             position: absolute;
             top: 0;
             width: 50%;
             height: 100%;
-            background-color: #c61c44; /* Cor das cortinas */
-            z-index: 1000; /* Certifica que as cortinas fiquem acima de tudo */
+            background-color: #c61c44;
+            z-index: 1000;
             animation: curtain 2s forwards ease-in-out;
         }
 
@@ -180,7 +173,6 @@
     </style>
 </head>
 <body>
-    <!-- Cortinas -->
     <div class="curtain left"></div>
     <div class="curtain right"></div>
 
@@ -193,8 +185,10 @@
         <div class="gift" id="giftBox">
             <img src="presente.png" alt="Presente" />
         </div>
-        <div class="message" id="message"></div> <!-- Mensagem inicializada vazia -->
-        <div class="citation" id="citation"></div> <!-- Citação adicionada -->
+        <div class="message-citation-container">
+            <div class="message" id="message"></div> <!-- Mensagem inicializada vazia -->
+            <div class="citation" id="citation"></div> <!-- Citação adicionada -->
+        </div>
     </div>
 
     <!-- Áudio de fundo -->
@@ -234,8 +228,8 @@
 
             // Mostrar a mensagem e a citação após o áudio terminar
             audio.onended = () => {
-                message.style.display = 'block'; // Exibe a mensagem com brilho
-                citation.style.display = 'block'; // Exibe a citação sem brilho
+                message.style.display = 'block'; // Exibe a mensagem
+                citation.style.display = 'block'; // Exibe a citação
             };
         }
 
