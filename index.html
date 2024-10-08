@@ -3,17 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presente Surpresa😍</title>
+    <title>GAME DE 1 PERGUNTA</title>
     <link rel="icon" href="favicon.png" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
     <style>
-        /* Reset básico */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             background-color: black;
             color: #c61c44;
@@ -23,226 +16,123 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            overflow: hidden;
-            position: relative;
-            padding: 20px;
             text-align: center;
         }
 
         h1 {
-            font-size: 3em;
-            color: #c61c44;
+            font-size: 2.5em;
             margin-bottom: 20px;
         }
 
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            border: 2px solid #c61c44;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .hint {
+            font-size: 1.5em; /* Aumentando o tamanho da fonte da dica */
+            margin: 20px 0; /* Espaço acima e abaixo da dica */
+        }
+
+
         .button {
             display: inline-block;
-            padding: 15px 30px;
+            padding: 10px 20px;
             font-size: 1.2em;
             color: white;
             background: linear-gradient(135deg, #c61c44, #b10d37);
             border: none;
             border-radius: 25px;
-            text-decoration: none;
-            margin-top: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 10px; /* Adiciona um espaço acima do botão */
         }
 
-        .button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .gift {
-            display: none;
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
-            position: relative;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Barras de carregamento do presente */
-        .gift:before, .gift:after {
-            content: '';
-            position: absolute;
-            background: #c61c44;
-            height: 10px;
-            border-radius: 5px;
-            animation: loadBar 7s forwards;
-        }
-
-        .gift:before {
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            animation-delay: 0.5s;
-        }
-
-        .gift:after {
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            animation-delay: 0.5s;
-        }
-
-        @keyframes loadBar {
-            0% { width: 0; }
-            100% { width: 100%; }
-        }
-
-        .gift img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 10px;
-        }
-
-        .message {
-            display: none;
-            font-size: 1.8em; /* Tamanho da fonte das mensagens principais */
+        #feedback {
             margin-top: 20px;
-            color: #c61c44;
-            font-weight: bold;
-            opacity: 0;
-            animation: shine 3s forwards;
+            font-size: 1.2em;
         }
 
-        @keyframes shine {
-            0% {
-                opacity: 0.5;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        .citation {
-            display: none;
-            font-size: 1.0em; /* Tamanho da fonte da citação */
-            color: #c61c44;
-            font-style: italic; /* Estilo da citação */
-            margin-left: 20px; /* Espaço à esquerda da citação */
-            line-height: 1.5em;
-            max-width: 250px; /* Ajuste a largura para evitar rolagem */
-        }
-
-        .citation span {
-            display: block; /* Distribui 3 palavras por linha */
-        }
-
-        .message-citation-container {
-            display: flex; /* Usar flexbox para alinhar a mensagem e a citação */
-            align-items: center; /* Centraliza verticalmente */
-            justify-content: center; /* Centraliza horizontalmente */
-        }
-
-        .curtain {
-            position: absolute;
-            top: 0;
-            width: 50%;
-            height: 100%;
-            background-color: #c61c44;
-            z-index: 1000;
-            animation: curtain 2s forwards ease-in-out;
-        }
-
-        .curtain.left {
-            left: 0;
-            animation-delay: 0s;
-        }
-
-        .curtain.right {
-            right: 0;
-            animation-delay: 0.5s;
-        }
-
-        @keyframes curtain {
-            0% {
-                width: 50%;
-            }
-            100% {
-                width: 0;
-            }
+        #prizeButton {
+            display: none; /* Inicialmente escondido */
         }
     </style>
 </head>
 <body>
-    <div class="curtain left"></div>
-    <div class="curtain right"></div>
 
-    <!-- Conteúdo Principal -->
-    <div class="content">
-        <h1>Para Você, Mari</h1>
+    <h1>Responda a pergunta para acumular pontos</h1>
+    <div id="gameContent">
+        <div class="hint" id="hint" style="display: none;"></div>
         
-        <button class="button" onclick="openGift()">Colete seu presente</button>
-    
-        <div class="gift" id="giftBox">
-            <img src="presente.png" alt="Presente" />
-        </div>
-        <div class="message-citation-container">
-            <div class="message" id="message"></div> <!-- Mensagem inicializada vazia -->
-            <div class="citation" id="citation"></div> <!-- Citação adicionada -->
-        </div>
-
+        <input type="text" id="guessInput" placeholder="Sua resposta">
+        <button class="button" onclick="checkAnswer()">Enviar Resposta</button>
+        
+        <div id="feedback"></div>
     </div>
 
-    <!-- Áudio de fundo -->
-    <audio id="backgroundAudio" src="musica.mp3" preload="auto"></audio>
+    <div id="resultContent" style="display: none;">
+        <h1>Resultado Final</h1>
+        <div id="finalScore"></div>
+        <button id="prizeButton" class="button" onclick="redirectToPrize()">Ir para o prêmio</button>
+    </div>
 
     <script>
-        // Variáveis para personalizar a mensagem
-        const loveMessage = "Você ganhou meu amor eterno! ❤️"; // Mensagem de amor
-        const extraMessage = "❤️ Espero que tenha gostado!"; // Mensagem extra (opcional)
-        const citationText = "\"Foram mais de 5 horas fazendo algo que possa lhe agradar. Não quero te forçar a nada, apenas demonstrar o quanto o tempo me fez perceber o quanto você é especial para mim!\""; // Texto da citação dividido
+        const questions = [
+            { hint: "Data que nos conhecemos", answer: ["07/02/23", "07/02/2023", "7 de fevereiro", "7/2", "7 de fev", "07-02-2023", "7-2-23", "fevereiro 7", "7 fevereiro", "february 7", "7th of february", "feb 7", "fev 7"] },
+        ];
 
-        function openGift() {
-            const giftBox = document.getElementById('giftBox');
-            const message = document.getElementById('message');
-            const citation = document.getElementById('citation');
-            const audio = document.getElementById('backgroundAudio');
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
 
-            // Reproduz o áudio
-            audio.currentTime = 0; // Reinicia o áudio
-            audio.play();
-
-            // Mostra o presente
-            giftBox.style.display = 'block';
-            message.style.display = 'none'; // Oculta a mensagem inicialmente
-            citation.style.display = 'none'; // Oculta a citação inicialmente
-
-            // Monta a mensagem final
-            message.innerHTML = `${loveMessage}<br>${extraMessage}`; // Exibe a mensagem
-
-            // Dividindo a citação em 3 palavras por linha
-            const words = citationText.split(' ');
-            let formattedCitation = '';
-            for (let i = 0; i < words.length; i += 3) {
-                formattedCitation += `<span>${words.slice(i, i + 3).join(' ')}</span>`;
-            }
-            citation.innerHTML = formattedCitation;
-
-            // Mostrar a mensagem e a citação após o áudio terminar
-            audio.onended = () => {
-                message.style.display = 'block'; // Exibe a mensagem
-                citation.style.display = 'block'; // Exibe a citação
-            };
+        function startGame() {
+            document.getElementById('hint').innerText = "Dica: " + questions[currentQuestionIndex].hint;
+            document.getElementById('hint').style.display = 'block'; 
         }
 
-        // Remover as cortinas após a animação terminar
-        window.addEventListener('load', () => {
-            const curtains = document.querySelectorAll('.curtain');
-            curtains.forEach(curtain => {
-                curtain.addEventListener('animationend', () => {
-                    curtain.style.display = 'none';
-                });
-            });
-        });
+        function checkAnswer() {
+            const userAnswer = document.getElementById('guessInput').value.toLowerCase();
+            const feedback = document.getElementById('feedback');
+
+            if (questions[currentQuestionIndex].answer.includes(userAnswer)) {
+                correctAnswers++;
+                feedback.innerHTML = "<p style='color: green;'>Correto! Próxima pergunta...</p>";
+                currentQuestionIndex++;
+
+                if (currentQuestionIndex < questions.length) {
+                    document.getElementById('hint').innerText = "Dica: " + questions[currentQuestionIndex].hint;
+                    document.getElementById('guessInput').value = "";
+                } else {
+                    showFinalResult();
+                }
+            } else {
+                feedback.innerHTML = "<p style='color: red;'>Resposta incorreta! Tente novamente.</p>";
+            }
+        }
+
+        function showFinalResult() {
+            document.getElementById('gameContent').style.display = 'none';
+            document.getElementById('resultContent').style.display = 'block';
+
+            const scorePercentage = (correctAnswers / questions.length) * 100;
+            let finalMessage = "100% = a porcentagem do meu amor por você! ❤️";
+
+            document.getElementById('finalScore').innerHTML = `
+                <p>Você acertou ${correctAnswers} de ${questions.length} perguntas!</p>
+                <p>${finalMessage}</p>
+            `;
+
+            // Exibir o botão para ir ao prêmio
+            document.getElementById('prizeButton').style.display = 'inline-block';
+        }
+
+        function redirectToPrize() {
+            window.location.href = 'jogo.html'; // Substitua 'index.html' pelo caminho do seu prêmio
+        }
+
+        startGame();
     </script>
+
 </body>
 </html>
