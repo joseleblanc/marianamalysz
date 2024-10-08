@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAME DE 1 PERGUNTA</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: black;
+            color: #c61c44;
+            font-family: 'Dancing Script', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            border: 2px solid #c61c44;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .hint {
+            font-size: 1.5em; /* Aumentando o tamanho da fonte da dica */
+            margin: 20px 0; /* Espaço acima e abaixo da dica */
+        }
+
+        
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            color: white;
+            background: linear-gradient(135deg, #c61c44, #b10d37);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 10px; /* Adiciona um espaço acima do botão */
+        }
+
+        #feedback {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        #prizeButton {
+            display: none; /* Inicialmente escondido */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Responda a pergunta para acumular pontos</h1>
+    <div id="gameContent">
+        <div class="hint" id="hint" style="display: none;"></div>
+        
+        <input type="text" id="guessInput" placeholder="Sua resposta">
+        <button class="button" onclick="checkAnswer()">Enviar Resposta</button>
+        
+        <div id="feedback"></div>
+    </div>
+
+    <div id="resultContent" style="display: none;">
+        <h1>Resultado Final</h1>
+        <div id="finalScore"></div>
+        <button id="prizeButton" class="button" onclick="redirectToPrize()">Ir para o prêmio</button>
+    </div>
+
+    <script>
+        const questions = [
+            { hint: "Data que nos conhecemos", answer: ["07/02/23", "07/02/2023", "7 de fevereiro", "7/2", "7 de fev", "07-02-2023", "7-2-23", "fevereiro 7", "7 fevereiro", "february 7", "7th of february", "feb 7", "fev 7"] },
+        ];
+
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+
+        function startGame() {
+            document.getElementById('hint').innerText = "Dica: " + questions[currentQuestionIndex].hint;
+            document.getElementById('hint').style.display = 'block'; 
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('guessInput').value.toLowerCase();
+            const feedback = document.getElementById('feedback');
+
+            if (questions[currentQuestionIndex].answer.includes(userAnswer)) {
+                correctAnswers++;
+                feedback.innerHTML = "<p style='color: green;'>Correto! Próxima pergunta...</p>";
+                currentQuestionIndex++;
+
+                if (currentQuestionIndex < questions.length) {
+                    document.getElementById('hint').innerText = "Dica: " + questions[currentQuestionIndex].hint;
+                    document.getElementById('guessInput').value = "";
+                } else {
+                    showFinalResult();
+                }
+            } else {
+                feedback.innerHTML = "<p style='color: red;'>Resposta incorreta! Tente novamente.</p>";
+            }
+        }
+
+        function showFinalResult() {
+            document.getElementById('gameContent').style.display = 'none';
+            document.getElementById('resultContent').style.display = 'block';
+
+            const scorePercentage = (correctAnswers / questions.length) * 100;
+            let finalMessage = "100% = a porcentagem do meu amor por você! ❤️";
+
+            document.getElementById('finalScore').innerHTML = `
+                <p>Você acertou ${correctAnswers} de ${questions.length} perguntas!</p>
+                <p>${finalMessage}</p>
+            `;
+
+            // Exibir o botão para ir ao prêmio
+            document.getElementById('prizeButton').style.display = 'inline-block';
+        }
+
+        function redirectToPrize() {
+            window.location.href = 'index.html'; // Substitua 'index.html' pelo caminho do seu prêmio
+        }
+
+        startGame();
+    </script>
+
+</body>
+</html>
