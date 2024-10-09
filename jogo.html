@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presente Surpresa😍</title>
     <link rel="icon" href="favicon.png" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet"> <!-- Fonte alterada para a mesma da outra página -->
     <style>
         /* Reset básico */
         * {
@@ -17,7 +17,7 @@
         body {
             background-color: black;
             color: #c61c44;
-            font-family: 'Dancing Script', cursive;
+            font-family: 'Arial', sans-serif; /* Fonte mais legível */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -59,7 +59,7 @@
             display: none;
             width: 200px;
             height: 200px;
-            margin: 20px auto;
+            margin: 20px;
             position: relative;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -182,13 +182,14 @@
         
         <button class="button" onclick="openGift()">Colete seu presente</button>
     
-        <div class="gift" id="giftBox">
-            <img src="presente.png" alt="Presente" />
-        </div>
         <div class="message-citation-container">
-            <div class="message" id="message"></div> <!-- Mensagem inicializada vazia -->
+            <div class="gift" id="giftBox">
+                <img src="presente.png" alt="Presente" />
+            </div>
             <div class="citation" id="citation"></div> <!-- Citação adicionada -->
         </div>
+        
+        <div class="message" id="message"></div> <!-- Mensagem inicializada vazia -->
 
     </div>
 
@@ -197,9 +198,9 @@
 
     <script>
         // Variáveis para personalizar a mensagem
-        const loveMessage = "Você ganhou meu amor eterno! ❤️"; // Mensagem de amor
+        const loveMessage = "Às vezes um bom presente pode não ser algo com um formato,<br>ou que possa ser visto. O maior presente entre duas pessoas<br>é o amor. ❤️"; // Mensagem de amor
         const extraMessage = "❤️ Espero que tenha gostado!"; // Mensagem extra (opcional)
-        const citationText = "\"Foram mais de 5 horas fazendo algo que possa lhe agradar. Não quero te forçar a nada, apenas demonstrar o quanto o tempo me fez perceber o quanto você é especial para mim!\""; // Texto da citação dividido
+        const citationText = "\"Uma vez li em algum lugar, todo esforço feito para pessoas que você sente algo especial nunca será perdido!\""; // Nova citação
 
         function openGift() {
             const giftBox = document.getElementById('giftBox');
