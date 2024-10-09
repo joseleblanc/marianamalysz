@@ -5,23 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GAME DE 1 PERGUNTA</title>
     <link rel="icon" href="favicon.png" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet"> <!-- Fonte mais legível -->
     <style>
         body {
             background-color: black;
             color: #c61c44;
-            font-family: 'Dancing Script', cursive;
+            font-family: 'Arial', sans-serif; /* Fonte mais legível */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             text-align: center;
+            padding: 20px; /* Adicionando espaço ao redor do texto */
+            box-sizing: border-box; /* Faz com que o padding não aumente a largura total */
         }
 
         h1 {
             font-size: 2.5em;
             margin-bottom: 20px;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centraliza os itens dentro do contêiner */
+            margin-bottom: 20px; /* Espaço abaixo do contêiner */
         }
 
         input[type="text"] {
@@ -31,12 +40,13 @@
             border: 2px solid #c61c44;
             margin-bottom: 20px;
             text-align: center;
+            display: none; /* Inicialmente escondido */
         }
+
         .hint {
             font-size: 1.5em; /* Aumentando o tamanho da fonte da dica */
             margin: 20px 0; /* Espaço acima e abaixo da dica */
         }
-
 
         .button {
             display: inline-block;
@@ -58,24 +68,39 @@
         #prizeButton {
             display: none; /* Inicialmente escondido */
         }
+
+        /* Estilo para o controle de volume */
+        .volume-control {
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Responda a pergunta para acumular pontos</h1>
     <div id="gameContent">
-        <div class="hint" id="hint" style="display: none;"></div>
-        
-        <input type="text" id="guessInput" placeholder="Sua resposta">
-        <button class="button" onclick="checkAnswer()">Enviar Resposta</button>
-        
-        <div id="feedback"></div>
+        <h1>Responda a pergunta</h1> <!-- Título adicionado aqui -->
+        <p>Que dia nos vimos pela primeira vez?</p> <!-- Pergunta adicionada aqui -->
+        <div class="input-container">
+            <input type="text" id="guessInput" placeholder="__/__/____" maxlength="10" oninput="formatDate()">
+            <div id="feedback"></div>
+            <button class="button" id="startButton" onclick="startGame()">Iniciar</button> <!-- Botão Iniciar -->
+            <button class="button" onclick="checkAnswer()" style="display: none;">Enviar Resposta</button> <!-- Botão Enviar Resposta escondido -->
+        </div>
     </div>
 
     <div id="resultContent" style="display: none;">
-        <h1>Resultado Final</h1>
+        <h1>Resultado</h1>
         <div id="finalScore"></div>
         <button id="prizeButton" class="button" onclick="redirectToPrize()">Ir para o prêmio</button>
+    </div>
+
+    <!-- Adicionando a música de fundo -->
+    <audio id="backgroundAudio" src="sound.mp3" preload="auto" loop></audio>
+
+    <!-- Controle de volume -->
+    <div class="volume-control">
+        <label for="volumeSlider">Volume:</label>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.15" onchange="setVolume()">
     </div>
 
     <script>
@@ -85,10 +110,33 @@
 
         let currentQuestionIndex = 0;
         let correctAnswers = 0;
+        let hintIndex = 0; // Índice para acompanhar as dicas
+
+        const hints = [
+            "Lembre-se do seu primeiro dia no integrado +1",
+            "Seu final é __/02/2023",
+            "Já que não acertou, vá em frente: 07/02/2023!"
+        ];
 
         function startGame() {
-            document.getElementById('hint').innerText = "Dica: " + questions[currentQuestionIndex].hint;
-            document.getElementById('hint').style.display = 'block'; 
+            // Exibir o campo de entrada e o botão de enviar
+            document.getElementById('guessInput').style.display = 'block';
+            document.querySelector("button[onclick='checkAnswer()']").style.display = 'inline-block'; // Mostra o botão Enviar Resposta
+            document.getElementById('startButton').style.display = 'none'; // Esconde o botão Iniciar
+            document.getElementById('backgroundAudio').play(); // Inicia a música
+        }
+
+        function formatDate() {
+            const input = document.getElementById('guessInput');
+            let value = input.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+
+            if (value.length >= 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2); // Adiciona a primeira barra
+            }
+            if (value.length >= 5) {
+                value = value.slice(0, 5) + '/' + value.slice(5); // Adiciona a segunda barra
+            }
+            input.value = value; // Atualiza o valor do input
         }
 
         function checkAnswer() {
@@ -99,6 +147,7 @@
                 correctAnswers++;
                 feedback.innerHTML = "<p style='color: green;'>Correto! Próxima pergunta...</p>";
                 currentQuestionIndex++;
+                hintIndex = 0; // Reseta o índice das dicas ao acertar
 
                 if (currentQuestionIndex < questions.length) {
                     document.getElementById('hint').innerText = "Dica: " + questions[currentQuestionIndex].hint;
@@ -107,7 +156,12 @@
                     showFinalResult();
                 }
             } else {
-                feedback.innerHTML = "<p style='color: red;'>Resposta incorreta! Tente novamente.</p>";
+                if (hintIndex < hints.length) {
+                    feedback.innerHTML = `<p style='color: red;'>Resposta incorreta! Tente novamente.</p><p>Dica: ${hints[hintIndex]}</p>`;
+                    hintIndex++; // Avança para a próxima dica
+                } else {
+                    feedback.innerHTML = `<p style='color: red;'>Resposta incorreta! Tente novamente.</p>`;
+                }
             }
         }
 
@@ -115,23 +169,29 @@
             document.getElementById('gameContent').style.display = 'none';
             document.getElementById('resultContent').style.display = 'block';
 
-            const scorePercentage = (correctAnswers / questions.length) * 100;
-            let finalMessage = "100% = a porcentagem do meu amor por você! ❤️";
-
-            document.getElementById('finalScore').innerHTML = `
-                <p>Você acertou ${correctAnswers} de ${questions.length} perguntas!</p>
-                <p>${finalMessage}</p>
+            // Mensagem final personalizada com quebras de linha
+            const finalMessage = `
+                Olá Mari, que bom ver você aqui!<br><br>
+                Nesse momento não sei se você acertou ou se tentou as 3 vezes para ganhar a resposta.<br>
+                Só sei que se você está aqui, algo te interessou, mesmo que seja rir da minha cara por ter feito isso.<br><br>
+                Clique agora no botão e prossiga para ganhar seu prêmio.
             `;
+
+            document.getElementById('finalScore').innerHTML = finalMessage;
 
             // Exibir o botão para ir ao prêmio
             document.getElementById('prizeButton').style.display = 'inline-block';
         }
 
         function redirectToPrize() {
-            window.location.href = 'jogo.html'; // Substitua 'index.html' pelo caminho do seu prêmio
+            window.location.href = 'jogo.html'; // Substitua 'jogo.html' pelo caminho do seu prêmio
         }
 
-        startGame();
+        function setVolume() {
+            const audio = document.getElementById('backgroundAudio');
+            const volumeSlider = document.getElementById('volumeSlider');
+            audio.volume = volumeSlider.value; // Define o volume da música
+        }
     </script>
 
 </body>
