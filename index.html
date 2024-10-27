@@ -157,10 +157,10 @@
                 }
             } else {
                 if (hintIndex < hints.length) {
-                    feedback.innerHTML = <p style='color: red;'>Resposta incorreta! Tente novamente.</p><p>Dica: ${hints[hintIndex]}</p>;
+                    feedback.innerHTML = `<p style='color: red;'>Resposta incorreta! Tente novamente.</p><p>Dica: ${hints[hintIndex]}</p>`;
                     hintIndex++; // Avança para a próxima dica
                 } else {
-                    feedback.innerHTML = <p style='color: red;'>Resposta incorreta! Tente novamente.</p>;
+                    feedback.innerHTML = `<p style='color: red;'>Resposta incorreta! Tente novamente.</p>`;
                 }
             }
         }
@@ -170,12 +170,12 @@
             document.getElementById('resultContent').style.display = 'block';
 
             // Mensagem final personalizada com quebras de linha
-            const finalMessage = 
+            const finalMessage = `
                 Olá Mari, que bom ver você aqui!<br><br>
                 Nesse momento não sei se você acertou ou se tentou as 3 vezes para ganhar a resposta.<br>
                 Só sei que se você está aqui, algo te interessou, mesmo que seja rir da minha cara por ter feito isso.<br><br>
                 Clique agora no botão e prossiga para ganhar seu prêmio.
-            ;
+            `;
 
             document.getElementById('finalScore').innerHTML = finalMessage;
 
