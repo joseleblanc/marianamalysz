@@ -194,7 +194,7 @@
     </div>
 
     <!-- Áudio de fundo -->
-    <audio id="backgroundAudio" src="musica.mp3" preload="auto" loop></audio>
+    <audio id="backgroundAudio" src="musica.mp3" preload="auto"></audio>
 
     <script>
         // Variáveis para personalizar a mensagem
@@ -218,13 +218,13 @@
             citation.style.display = 'none'; // Oculta a citação inicialmente
 
             // Monta a mensagem final
-            message.innerHTML = `${loveMessage}<br>${extraMessage}`; // Exibe a mensagem
+            message.innerHTML = ${loveMessage}<br>${extraMessage}; // Exibe a mensagem
 
             // Dividindo a citação em 3 palavras por linha
             const words = citationText.split(' ');
             let formattedCitation = '';
             for (let i = 0; i < words.length; i += 3) {
-                formattedCitation += `<span>${words.slice(i, i + 3).join(' ')}</span>`;
+                formattedCitation += <span>${words.slice(i, i + 3).join(' ')}</span>;
             }
             citation.innerHTML = formattedCitation;
 
