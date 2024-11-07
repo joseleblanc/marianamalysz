@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presente Surpresa</title>
+    <title>Presente Surpresa😍</title>
     <link rel="icon" href="favicon.png" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet"> <!-- Fonte alterada para a mesma da outra página -->
+    <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet">
     <style>
-        /* Reset básico */
         * {
             margin: 0;
             padding: 0;
@@ -17,7 +16,7 @@
         body {
             background-color: black;
             color: #c61c44;
-            font-family: 'Arial', sans-serif; /* Fonte mais legível */
+            font-family: 'Arial', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -65,7 +64,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
-        /* Barras de carregamento do presente */
         .gift:before, .gift:after {
             content: '';
             position: absolute;
@@ -105,7 +103,7 @@
 
         .message {
             display: none;
-            font-size: 1.8em; /* Tamanho da fonte das mensagens principais */
+            font-size: 1.8em;
             margin-top: 20px;
             color: #c61c44;
             font-weight: bold;
@@ -124,22 +122,22 @@
 
         .citation {
             display: none;
-            font-size: 1.0em; /* Tamanho da fonte da citação */
+            font-size: 1.0em;
             color: #c61c44;
-            font-style: italic; /* Estilo da citação */
-            margin-left: 20px; /* Espaço à esquerda da citação */
+            font-style: italic;
+            margin-left: 20px;
             line-height: 1.5em;
-            max-width: 250px; /* Ajuste a largura para evitar rolagem */
+            max-width: 250px;
         }
 
         .citation span {
-            display: block; /* Distribui 3 palavras por linha */
+            display: block;
         }
 
         .message-citation-container {
-            display: flex; /* Usar flexbox para alinhar a mensagem e a citação */
-            align-items: center; /* Centraliza verticalmente */
-            justify-content: center; /* Centraliza horizontalmente */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .curtain {
@@ -176,51 +174,44 @@
     <div class="curtain left"></div>
     <div class="curtain right"></div>
 
-    <!-- Conteúdo Principal -->
     <div class="content">
         <h1>Para Você, Mari</h1>
         
-        <button class="button" onclick="openGift()">Colete seu presente</button>
+        <button class="button" id="actionButton" onclick="openGift()">Colete seu presente</button>
     
         <div class="message-citation-container">
             <div class="gift" id="giftBox">
                 <img src="presente.png" alt="Presente" />
             </div>
-            <div class="citation" id="citation"></div> <!-- Citação adicionada -->
+            <div class="citation" id="citation"></div>
         </div>
         
-        <div class="message" id="message"></div> <!-- Mensagem inicializada vazia -->
-
+        <div class="message" id="message"></div>
     </div>
 
-    <!-- Áudio de fundo -->
     <audio id="backgroundAudio" src="musica.mp3" preload="auto"></audio>
 
     <script>
-        // Variáveis para personalizar a mensagem
-        const loveMessage = "Às vezes um bom presente pode não ser algo com um formato,<br>ou que possa ser visto. O maior presente entre duas pessoas<br>é o amor. ❤️"; // Mensagem de amor
-        const extraMessage = "❤️ Espero que tenha gostado!"; // Mensagem extra (opcional)
-        const citationText = "\"Uma vez li em algum lugar, todo esforço feito para pessoas que você sente algo especial nunca será perdido!\""; // Nova citação
+        const loveMessage = "Às vezes um bom presente pode não ser algo com um formato,<br>ou que possa ser visto. O maior presente entre duas pessoas<br>é a amizade. 🤍";
+        const extraMessage = "Espero que tenha gostado!";
+        const citationText = "\"Uma vez li em algum lugar, todo esforço feito para pessoas que você sente algo especial nunca será perdido!\"";
 
         function openGift() {
             const giftBox = document.getElementById('giftBox');
             const message = document.getElementById('message');
             const citation = document.getElementById('citation');
             const audio = document.getElementById('backgroundAudio');
+            const actionButton = document.getElementById('actionButton');
 
-            // Reproduz o áudio
-            audio.currentTime = 0; // Reinicia o áudio
+            audio.currentTime = 0;
             audio.play();
 
-            // Mostra o presente
             giftBox.style.display = 'block';
-            message.style.display = 'none'; // Oculta a mensagem inicialmente
-            citation.style.display = 'none'; // Oculta a citação inicialmente
+            message.style.display = 'none';
+            citation.style.display = 'none';
 
-            // Monta a mensagem final
-            message.innerHTML = `${loveMessage}<br>${extraMessage}`; // Exibe a mensagem
+            message.innerHTML = `${loveMessage}<br>${extraMessage}`;
 
-            // Dividindo a citação em 3 palavras por linha
             const words = citationText.split(' ');
             let formattedCitation = '';
             for (let i = 0; i < words.length; i += 3) {
@@ -228,14 +219,16 @@
             }
             citation.innerHTML = formattedCitation;
 
-            // Mostrar a mensagem e a citação após o áudio terminar
             audio.onended = () => {
-                message.style.display = 'block'; // Exibe a mensagem
-                citation.style.display = 'block'; // Exibe a citação
+                message.style.display = 'block';
+                citation.style.display = 'block';
+                actionButton.textContent = "Próxima Página";
+                actionButton.onclick = () => {
+                    window.location.href = "mensagem.html";
+                };
             };
         }
 
-        // Remover as cortinas após a animação terminar
         window.addEventListener('load', () => {
             const curtains = document.querySelectorAll('.curtain');
             curtains.forEach(curtain => {
