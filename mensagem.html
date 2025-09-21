@@ -91,6 +91,63 @@
         #reveal-btn:hover {
             background-color: #a81436;
         }
+
+        /* ==================== Carrossel ==================== */
+        /* Carrossel estilo similar ao iframe do YouTube */
+.carrossel {
+    width: 100%;
+    max-width: 800px;
+    height: 450px; /* mesma altura do iframe */
+    margin: 40px auto;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 3px solid #c61c44;
+}
+
+.carrossel .slides {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.carrossel .slides img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* preenche a área, mantendo proporção */
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.carrossel .slides img.active {
+    opacity: 1;
+}
+
+/* Botões de navegação */
+.carrossel button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.5);
+    color: #c61c44;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 10px 15px;
+    border-radius: 50%;
+    user-select: none;
+}
+
+.carrossel .prev { left: 10px; }
+.carrossel .next { right: 10px; }
+
+.carrossel button:hover {
+    background: rgba(0,0,0,0.8);
+}
+
     </style>
 </head>
 <body>
@@ -109,7 +166,6 @@
     <!-- Título -->
     <h1>Um recado simples, mas de coração 💌</h1>
     
-    
     <!-- Vídeo do YouTube -->
     <iframe 
         src="https://www.youtube.com/embed/ELfQVY6TilI" 
@@ -118,6 +174,7 @@
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
         allowfullscreen>
     </iframe>
+
     <!-- Texto -->
     <div class="message">
         Oi Mari, espero que você goste desse site. Fiz com muito carinho pra você. 
@@ -135,34 +192,82 @@
         Obrigado por ler isso. É algo simples, mas feito com todo o meu coração. Espero que tenha entendido o que quis dizer. Valeu por tudo! 🥰
     </div>
 
-    
+    <div class="message">
+        depois de meses de programação, o dia foi finalmente escolhido.  
+        <br><br>    
+        Esse é o projeto que pude lhe entregar. Obrigado por tudo! Cada linha escrita tem um significado especial na minha vida, e cada parágrafo é uma nova inspiração, por mais que nao faça muito sentido espero te agradar!
+        <br><br>
+        Ja que tenho fotos nossas fiz um carrossel com algumas feitas por IA.
+        <br><br>
+        Com carinho, José
+    </div>
 
-   <!-- Novo Texto -->
-<div class="message">
-    depois de meses de programação, o dia foi finalmente escolhido.  
-    <br><br>
-    Esse é o projeto que pude lhe entregar. Obrigado por tudo! Cada linha escrita tem um significado especial na minha vida, e cada parágrafo é uma nova inspiração, por mais que nao faça muito sentido espero te agradar!
+    <!-- ==================== Carrossel com JS ==================== -->
+    <!-- Carrossel abaixo do texto -->
+<div class="carrossel">
+    <button class="prev">❮</button>
+    <div class="slides">
+        <img src="imgcarrossel/img1.png" alt="Imagem 1" class="active">
+        <img src="imgcarrossel/img2.jpeg" alt="Imagem 2">
+        <img src="imgcarrossel/img3.jpeg" alt="Imagem 3">
+    </div>
+    <button class="next">❯</button>
 </div>
 
 
-    <!-- Script para revelar conteúdo -->
+    <!-- Script para revelar conteúdo e carrossel -->
     <script>
         const curtain = document.getElementById('curtain');
         const audio = document.getElementById('audio');
         const revealButton = document.getElementById('reveal-btn');
 
         revealButton.addEventListener('click', () => {
-            // Inicia o áudio
             audio.play();
-
-            // Remove a cortina com animação
             curtain.style.transform = 'translateY(-100%)';
-
-            // Opcional: Remover a cortina completamente após a animação
             setTimeout(() => {
                 curtain.style.display = 'none';
             }, 2000);
         });
+
+        // ================= Carrossel JS =================
+        document.addEventListener("DOMContentLoaded", function() {
+    const slides = document.querySelectorAll(".carrossel .slides img");
+    const prev = document.querySelector(".carrossel .prev");
+    const next = document.querySelector(".carrossel .next");
+    let index = 0;
+
+    function showSlide(i) {
+        slides.forEach(img => img.classList.remove("active"));
+        slides[i].classList.add("active");
+    }
+
+    next.addEventListener("click", () => {
+        index = (index + 1) % slides.length;
+        showSlide(index);
+    });
+
+    prev.addEventListener("click", () => {
+        index = (index - 1 + slides.length) % slides.length;
+        showSlide(index);
+    });
+});
+revealButton.addEventListener('click', () => {
+    // Inicia o áudio
+    audio.play();
+
+    // Remove a cortina com animação
+    curtain.style.transform = 'translateY(-100%)';
+
+    // Rola a página para o topo
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Remove a cortina completamente após a animação
+    setTimeout(() => {
+        curtain.style.display = 'none';
+    }, 2000);
+});
+
+
     </script>
 </body>
-</html> 
+</html>
