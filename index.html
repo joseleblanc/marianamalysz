@@ -1,24 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y0GB91FJNB"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Y0GB91FJNB');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desafio da Primeira Lembrança</title>
     <link rel="icon" href="favicon.png" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet"> <!-- Fonte mais legível -->
+    <link href="https://fonts.googleapis.com/css2?family=Arial&display=swap" rel="stylesheet">
+
     <style>
         body {
             background-color: black;
             color: #c61c44;
-            font-family: 'Arial', sans-serif; /* Fonte mais legível */
+            font-family: 'Arial', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             text-align: center;
-            padding: 20px; /* Adicionando espaço ao redor do texto */
-            box-sizing: border-box; /* Faz com que o padding não aumente a largura total */
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -29,8 +40,8 @@
         .input-container {
             display: flex;
             flex-direction: column;
-            align-items: center; /* Centraliza os itens dentro do contêiner */
-            margin-bottom: 20px; /* Espaço abaixo do contêiner */
+            align-items: center;
+            margin-bottom: 20px;
         }
 
         input[type="text"] {
@@ -40,12 +51,12 @@
             border: 2px solid #c61c44;
             margin-bottom: 20px;
             text-align: center;
-            display: none; /* Inicialmente escondido */
+            display: none;
         }
 
         .hint {
-            font-size: 1.5em; /* Aumentando o tamanho da fonte da dica */
-            margin: 20px 0; /* Espaço acima e abaixo da dica */
+            font-size: 1.5em;
+            margin: 20px 0;
         }
 
         .button {
@@ -57,7 +68,7 @@
             border: none;
             border-radius: 25px;
             cursor: pointer;
-            margin-top: 10px; /* Adiciona um espaço acima do botão */
+            margin-top: 10px;
         }
 
         #feedback {
@@ -66,38 +77,38 @@
         }
 
         #prizeButton {
-            display: none; /* Inicialmente escondido */
+            display: none;
         }
 
-        /* Estilo para o controle de volume */
         .volume-control {
             margin: 20px 0;
         }
     </style>
 </head>
+
 <body>
 
     <div id="gameContent">
-        <h1>Responda a pergunta</h1> <!-- Título adicionado aqui -->
-        <p>Que dia nos vimos pela primeira vez?</p> <!-- Pergunta adicionada aqui -->
+        <h1>Responda a pergunta</h1>
+        <p>Que dia nos vimos pela primeira vez?</p>
+
         <div class="input-container">
             <input type="text" id="guessInput" placeholder="__/__/____" maxlength="10" oninput="formatDate()">
             <div id="feedback"></div>
-            <button class="button" id="startButton" onclick="startGame()">Iniciar</button> <!-- Botão Iniciar -->
-            <button class="button" onclick="checkAnswer()" style="display: none;">Enviar Resposta</button> <!-- Botão Enviar Resposta escondido -->
+
+            <button class="button" id="startButton" onclick="startGame()">Iniciar</button>
+            <button class="button" onclick="checkAnswer()" style="display:none;">Enviar Resposta</button>
         </div>
     </div>
 
-    <div id="resultContent" style="display: none;">
+    <div id="resultContent" style="display:none;">
         <h1>Resultado</h1>
         <div id="finalScore"></div>
         <button id="prizeButton" class="button" onclick="redirectToPrize()">Ir para o prêmio</button>
     </div>
 
-    <!-- Adicionando a música de fundo -->
     <audio id="backgroundAudio" src="sound.mp3" preload="auto" loop></audio>
 
-    <!-- Controle de volume -->
     <div class="volume-control">
         <label for="volumeSlider">Volume:</label>
         <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.15" onchange="setVolume()">
@@ -105,12 +116,20 @@
 
     <script>
         const questions = [
-            { hint: "Data que nos conhecemos", answer: ["07/02/23", "07/02/2023", "7 de fevereiro", "7/2", "7 de fev", "07-02-2023", "7-2-23", "fevereiro 7", "7 fevereiro", "february 7", "7th of february", "feb 7", "fev 7"] },
+            { 
+              hint: "Data que nos conhecemos", 
+              answer: [
+                "07/02/23","07/02/2023","7 de fevereiro","7/2",
+                "7 de fev","07-02-2023","7-2-23","fevereiro 7",
+                "7 fevereiro","february 7","7th of february",
+                "feb 7","fev 7"
+              ] 
+            }
         ];
 
         let currentQuestionIndex = 0;
         let correctAnswers = 0;
-        let hintIndex = 0; // Índice para acompanhar as dicas
+        let hintIndex = 0;
 
         const hints = [
             "Lembre-se do seu primeiro dia no integrado +1",
@@ -119,24 +138,23 @@
         ];
 
         function startGame() {
-            // Exibir o campo de entrada e o botão de enviar
             document.getElementById('guessInput').style.display = 'block';
-            document.querySelector("button[onclick='checkAnswer()']").style.display = 'inline-block'; // Mostra o botão Enviar Resposta
-            document.getElementById('startButton').style.display = 'none'; // Esconde o botão Iniciar
-            document.getElementById('backgroundAudio').play(); // Inicia a música
+            document.querySelector("button[onclick='checkAnswer()']").style.display = 'inline-block';
+            document.getElementById('startButton').style.display = 'none';
+            document.getElementById('backgroundAudio').play();
+
+            // Evento Google Analytics
+            gtag('event', 'iniciar_jogo');
         }
 
         function formatDate() {
             const input = document.getElementById('guessInput');
-            let value = input.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+            let value = input.value.replace(/\D/g, '');
 
-            if (value.length >= 2) {
-                value = value.slice(0, 2) + '/' + value.slice(2); // Adiciona a primeira barra
-            }
-            if (value.length >= 5) {
-                value = value.slice(0, 5) + '/' + value.slice(5); // Adiciona a segunda barra
-            }
-            input.value = value; // Atualiza o valor do input
+            if (value.length >= 2) value = value.slice(0,2) + '/' + value.slice(2);
+            if (value.length >= 5) value = value.slice(0,5) + '/' + value.slice(5);
+
+            input.value = value;
         }
 
         function checkAnswer() {
@@ -145,23 +163,20 @@
 
             if (questions[currentQuestionIndex].answer.includes(userAnswer)) {
                 correctAnswers++;
-                feedback.innerHTML = "<p style='color: green;'>Correto! Próxima pergunta...</p>";
-                currentQuestionIndex++;
-                hintIndex = 0; // Reseta o índice das dicas ao acertar
+                feedback.innerHTML = "<p style='color:green;'>Correto!</p>";
 
-                if (currentQuestionIndex < questions.length) {
-                    document.getElementById('hint').innerText = "Dica: " + questions[currentQuestionIndex].hint;
-                    document.getElementById('guessInput').value = "";
-                } else {
-                    showFinalResult();
-                }
+                gtag('event', 'resposta_correta');
+
+                showFinalResult();
             } else {
                 if (hintIndex < hints.length) {
-                    feedback.innerHTML = `<p style='color: red;'>Resposta incorreta! Tente novamente.</p><p>Dica: ${hints[hintIndex]}</p>`;
-                    hintIndex++; // Avança para a próxima dica
+                    feedback.innerHTML = `<p style='color:red;'>Resposta incorreta.</p><p>Dica: ${hints[hintIndex]}</p>`;
+                    hintIndex++;
                 } else {
-                    feedback.innerHTML = `<p style='color: red;'>Resposta incorreta! Tente novamente.</p>`;
+                    feedback.innerHTML = "<p style='color:red;'>Resposta incorreta.</p>";
                 }
+
+                gtag('event', 'resposta_errada');
             }
         }
 
@@ -169,27 +184,23 @@
             document.getElementById('gameContent').style.display = 'none';
             document.getElementById('resultContent').style.display = 'block';
 
-            // Mensagem final personalizada com quebras de linha
-            const finalMessage = `
-            Oi Mari, que bom que você chegou aqui!<br><br>
-            Não sei se você acertou de primeira ou tentou várias vezes. O que importa é que você veio até o final.<br>
-            Se quiser rir ou só aproveitar, clica no botão aí e pega seu prêmio!
-`;
+            document.getElementById('finalScore').innerHTML = `
+                Oi Mari, que bom que você chegou aqui!<br><br>
+                Não importa quantas tentativas foram necessárias.<br>
+                O que importa é que você chegou até o final ❤️
+            `;
 
-            document.getElementById('finalScore').innerHTML = finalMessage;
-
-            // Exibir o botão para ir ao prêmio
             document.getElementById('prizeButton').style.display = 'inline-block';
         }
 
         function redirectToPrize() {
-            window.location.href = 'jogo.html'; // Substitua 'jogo.html' pelo caminho do seu prêmio
+            gtag('event', 'clicou_premio');
+            window.location.href = 'jogo.html';
         }
 
         function setVolume() {
-            const audio = document.getElementById('backgroundAudio');
-            const volumeSlider = document.getElementById('volumeSlider');
-            audio.volume = volumeSlider.value; // Define o volume da música
+            document.getElementById('backgroundAudio').volume =
+                document.getElementById('volumeSlider').value;
         }
     </script>
 
