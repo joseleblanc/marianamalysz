@@ -138,7 +138,7 @@ window.addEventListener("beforeunload", () => {
     const tempoFormatado = formatarTempo(tempoSegundos);
 
     navigator.sendBeacon(
-        "https://script.google.com/macros/s/AKfycbyJyCu5ogmUeLbH8c6Z5Y_ygqSPSJxrsSsnc15A0PkaAc0a3JRaXIZelqQk1sF2uafh/exec",
+        "https://script.google.com/macros/s/AKfycbz-_alYXWJYS6jlkIpRaNbULIBDqDnIUlDShFFYA6QbI-WsBgxpEwMfbpvBa1Xr3jVVew/exec",
         JSON.stringify({
             aparelho: detectarAparelho(),
             local: localUsuario,
@@ -221,3 +221,4 @@ function setVolume() {
 
 </body>
 </html>
+
