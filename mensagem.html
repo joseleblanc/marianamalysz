@@ -25,33 +25,52 @@
             min-height: 100vh;
             text-align: center;
             padding: 20px;
-            overflow-y: auto;
+            overflow-x: hidden;
             scroll-behavior: smooth;
+        }
+
+        /* Fundo de Partículas (Mesmo do Index e Jogo) */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Fica atrás de tudo, inclusive da cortina se ela for transparente, mas aqui a cortina é sólida */
+            opacity: 0.3;
         }
 
         h1 {
             font-size: 2.5em;
             color: #c61c44;
-            margin-bottom: 20px;
+            margin: 40px 0 20px;
+            text-shadow: 0 0 15px rgba(198, 28, 68, 0.5);
         }
 
         .message {
             font-size: 1.2em;
-            color: #c61c44;
-            font-weight: bold;
-            line-height: 1.6;
-            max-width: 800px;
+            color: #e0e0e0;
+            line-height: 1.8;
+            max-width: 700px;
             margin: 20px auto;
+            background: rgba(198, 28, 68, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 4px solid #c61c44;
+            text-align: justify;
         }
+
+        .message b { color: #c61c44; }
 
         /* Estilo do vídeo */
         iframe {
             width: 100%;
             max-width: 800px;
             height: 450px;
-            border: 3px solid #c61c44;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border: 2px solid #c61c44;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(198, 28, 68, 0.3);
         }
 
         /* Estilo da cortina */
@@ -61,112 +80,80 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: black;
-            color: white;
+            background-color: black; /* Fundo preto para as partículas aparecerem sobre ele */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2000;
+            transition: all 1.5s cubic-bezier(0.65, 0.05, 0.36, 1);
+        }
+
+        /* Canvas específico para a cortina para garantir que as partículas apareçam na frente do fundo preto dela */
+        #curtain-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        #curtain-content {
+            position: relative;
+            z-index: 2; /* Fica acima das partículas da cortina */
             text-align: center;
-            transition: transform 2s ease-in-out;
         }
 
         #curtain h2 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            color: #f0f0f0;
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         #reveal-btn {
-            font-size: 1.2em;
+            font-size: 1.3em;
             color: white;
-            background-color: #c61c44;
+            background: linear-gradient(135deg, #c61c44, #8a132f);
             border: none;
-            padding: 10px 20px;
+            padding: 15px 40px;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+            border-radius: 50px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(198, 28, 68, 0.4);
         }
 
         #reveal-btn:hover {
-            background-color: #a81436;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(198, 28, 68, 0.6);
         }
 
-        /* ==================== Carrossel ==================== */
-        /* Carrossel estilo similar ao iframe do YouTube */
-.carrossel {
-    width: 100%;
-    max-width: 800px;
-    height: 450px; /* mesma altura do iframe */
-    margin: 40px auto;
-    position: relative;
-    overflow: hidden;
-    border-radius: 10px;
-    border: 3px solid #c61c44;
-}
-
-.carrossel .slides {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.carrossel .slides img {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* preenche a área, mantendo proporção */
-    top: 0;
-    left: 0;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-}
-
-.carrossel .slides img.active {
-    opacity: 1;
-}
-
-/* Botões de navegação */
-.carrossel button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.5);
-    color: #c61c44;
-    border: none;
-    font-size: 2rem;
-    cursor: pointer;
-    padding: 10px 15px;
-    border-radius: 50%;
-    user-select: none;
-}
-
-.carrossel .prev { left: 10px; }
-.carrossel .next { right: 10px; }
-
-.carrossel button:hover {
-    background: rgba(0,0,0,0.8);
-}
-
+        footer {
+            margin: 50px 0;
+            font-size: 0.9em;
+            color: #444;
+        }
     </style>
 </head>
 <body>
-    <!-- Cortina Inicial -->
+    <canvas id="bg-canvas"></canvas>
+
     <div id="curtain">
-        <h2>Ola, para finalizar quero lhe dizer algumas palavras! </h2>
-        <button id="reveal-btn">Revelar</button>
+        <canvas id="curtain-canvas"></canvas>
+        <div id="curtain-content">
+            <h2>Olá, para finalizar quero lhe dizer algumas palavras!</h2>
+            <button id="reveal-btn">Revelar de Coração</button>
+        </div>
     </div>
 
-    <!-- Conteúdo Principal -->
     <audio id="audio" loop>
         <source src="audio.mp3" type="audio/mpeg">
-        Seu navegador não suporta a reprodução de áudio.
     </audio>
 
-    <!-- Título -->
     <h1>Um recado simples, mas de coração 💌</h1>
     
-    <!-- Vídeo do YouTube -->
     <iframe 
         src="https://www.youtube.com/embed/ELfQVY6TilI" 
         title="YouTube video player" 
@@ -175,36 +162,62 @@
         allowfullscreen>
     </iframe>
 
-    <!-- Texto -->
     <div class="message">
-        Oi Mari, espero que você goste desse site. Fiz com muito carinho pra você. 
+        Oi <b>Mari</b>, espero que você goste desse site. Fiz com muito carinho pra você. 
         <br><br>
-        Queria lembrar um pouco da nossa história. De como a gente se conheceu e se divertiu juntos, mesmo com algumas dificuldades no caminho. 
-        <br><br>
-        Eu queria colocar várias fotos nossas aqui, mas a gente nem tirou fotos juntos, né? Vamos mudar isso algum dia!
-        <br><br>
-        O tempo que passamos juntos me fez ver o quanto você é especial. Você é educada, simpática e tem muitas outras qualidades que nem dá pra listar tudo aqui. 
+        Queria lembrar um pouco da nossa história. De como a gente se conheceu e se divertiu juntos, mesmo com algumas dificuldades no caminho. O tempo que passamos juntos me fez ver o quanto você é especial. Você é educada, simpática e tem muitas outras qualidades.
         <br><br>
         Sei que às vezes eu fui meio chato e até mal-educado. Nesse tempo afastado, percebi muitos erros meus. Queria pedir desculpa por isso e mostrar que quero ser alguém melhor. 
         <br><br>
         A gente acabou se afastando, mas eu gostaria muito de recuperar nossa amizade. Sei que nossa história não foi perfeita, mas pra mim ela foi importante. 
-        <br><br>
-        Obrigado por ler isso. É algo simples, mas feito com todo o meu coração. Espero que tenha entendido o que quis dizer. Valeu por tudo! 🥰
     </div>
 
-    <div class="message">
-        depois de meses de programação, o dia foi finalmente escolhido.  
+    <div class="message" style="border-left: none; border-right: 4px solid #c61c44; text-align: right;">
+        Depois de meses de programação, o dia foi finalmente escolhido.  
         <br><br>    
-        Esse é o projeto que pude lhe entregar. Obrigado por tudo! Cada linha escrita tem um significado especial na minha vida, e cada parágrafo é uma nova inspiração, por mais que nao faça muito sentido espero te agradar!
-
+        Esse é o projeto que pude lhe entregar. Obrigado por tudo! Cada linha escrita tem um significado especial, cada parágrafo é uma nova inspiração. Espero que isso tenha te agradado.
     </div>
 
-    <!-- ==================== Carrossel com JS ==================== -->
+    <footer>Feito com ❤️ para Mari</footer>
 
-
-
-    <!-- Script para revelar conteúdo e carrossel -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
+        // Função para criar o efeito de partículas em um canvas
+        function setupParticles(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            for(let i = 0; i < 50; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speed: Math.random() * 0.5 + 0.2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#c61c44';
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    p.y -= p.speed;
+                    if(p.y < 0) p.y = canvas.height;
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // Inicia as partículas nos dois canvas
+        setupParticles('bg-canvas');
+        setupParticles('curtain-canvas');
+
         const curtain = document.getElementById('curtain');
         const audio = document.getElementById('audio');
         const revealButton = document.getElementById('reveal-btn');
@@ -212,50 +225,27 @@
         revealButton.addEventListener('click', () => {
             audio.play();
             curtain.style.transform = 'translateY(-100%)';
+            
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#c61c44', '#ffffff']
+            });
+
             setTimeout(() => {
                 curtain.style.display = 'none';
-            }, 2000);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 1500);
         });
 
-        // ================= Carrossel JS =================
-        document.addEventListener("DOMContentLoaded", function() {
-    const slides = document.querySelectorAll(".carrossel .slides img");
-    const prev = document.querySelector(".carrossel .prev");
-    const next = document.querySelector(".carrossel .next");
-    let index = 0;
-
-    function showSlide(i) {
-        slides.forEach(img => img.classList.remove("active"));
-        slides[i].classList.add("active");
-    }
-
-    next.addEventListener("click", () => {
-        index = (index + 1) % slides.length;
-        showSlide(index);
-    });
-
-    prev.addEventListener("click", () => {
-        index = (index - 1 + slides.length) % slides.length;
-        showSlide(index);
-    });
-});
-revealButton.addEventListener('click', () => {
-    // Inicia o áudio
-    audio.play();
-
-    // Remove a cortina com animação
-    curtain.style.transform = 'translateY(-100%)';
-
-    // Rola a página para o topo
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Remove a cortina completamente após a animação
-    setTimeout(() => {
-        curtain.style.display = 'none';
-    }, 2000);
-});
-
-
+        // Ajustar canvas se a janela mudar de tamanho
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('canvas').forEach(canvas => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        });
     </script>
 </body>
 </html>

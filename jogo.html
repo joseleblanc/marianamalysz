@@ -28,11 +28,62 @@
             text-align: center;
         }
 
+        /* Fundo Animado (Mesmo do Index) */
+        #bg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
         h1 {
             font-size: 3em;
             color: #c61c44;
             margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(198, 28, 68, 0.5);
         }
+
+        /* Estilo do Checkbox */
+        .promise-container {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1em;
+            color: #f0f0f0;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid #c61c44;
+            animation: pulse-border 2s infinite;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(198, 28, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(198, 28, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(198, 28, 68, 0); }
+        }
+
+        #promise-check {
+            width: 20px;
+            height: 20px;
+            accent-color: #c61c44;
+            cursor: pointer;
+        }
+
+        .warning-text {
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .warning-active { color: #c61c44; font-weight: bold; }
 
         .button {
             display: inline-block;
@@ -43,15 +94,22 @@
             border: none;
             border-radius: 25px;
             text-decoration: none;
-            margin-top: 20px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
         }
 
-        .button:hover {
+        .button:hover:not(:disabled) {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 20px rgba(198, 28, 68, 0.4);
+        }
+
+        .button:disabled {
+            background: #333;
+            color: #777;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .gift {
@@ -61,7 +119,7 @@
             margin: 20px;
             position: relative;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(198, 28, 68, 0.3);
         }
 
         .gift:before, .gift:after {
@@ -73,21 +131,8 @@
             animation: loadBar 7s forwards;
         }
 
-        .gift:before {
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            animation-delay: 0.5s;
-        }
-
-        .gift:after {
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            animation-delay: 0.5s;
-        }
+        .gift:before { top: -15px; left: 50%; transform: translateX(-50%); width: 0; animation-delay: 0.5s; }
+        .gift:after { bottom: -15px; left: 50%; transform: translateX(-50%); width: 0; animation-delay: 0.5s; }
 
         @keyframes loadBar {
             0% { width: 0; }
@@ -112,12 +157,8 @@
         }
 
         @keyframes shine {
-            0% {
-                opacity: 0.5;
-            }
-            100% {
-                opacity: 1;
-            }
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         .citation {
@@ -130,9 +171,7 @@
             max-width: 250px;
         }
 
-        .citation span {
-            display: block;
-        }
+        .citation span { display: block; }
 
         .message-citation-container {
             display: flex;
@@ -150,34 +189,30 @@
             animation: curtain 2s forwards ease-in-out;
         }
 
-        .curtain.left {
-            left: 0;
-            animation-delay: 0s;
-        }
-
-        .curtain.right {
-            right: 0;
-            animation-delay: 0.5s;
-        }
+        .curtain.left { left: 0; animation-delay: 0s; }
+        .curtain.right { right: 0; animation-delay: 0.5s; }
 
         @keyframes curtain {
-            0% {
-                width: 50%;
-            }
-            100% {
-                width: 0;
-            }
+            100% { width: 0; }
         }
     </style>
 </head>
 <body>
+    <canvas id="bg-canvas"></canvas>
+
     <div class="curtain left"></div>
     <div class="curtain right"></div>
 
     <div class="content">
         <h1>Para Você, Mari</h1>
         
-        <button class="button" id="actionButton" onclick="openGift()">Colete seu presente</button>
+        <label class="promise-container" id="containerCheck">
+            <input type="checkbox" id="promise-check">
+            <span>PROMETO NÃO BRIGAR COM O DESENVOLVEDOR ✋</span>
+        </label>
+
+        <button class="button" id="actionButton" onclick="openGift()" disabled>Colete seu presente</button>
+        <p class="warning-text" id="warningText">(aceite o checkbox para continuar)</p>
     
         <div class="message-citation-container">
             <div class="gift" id="giftBox">
@@ -192,17 +227,65 @@
     <audio id="backgroundAudio" src="musica.mp3" preload="auto"></audio>
 
     <script>
-        const loveMessage = "O melhor presente não é algo que dá pra pegar ou ver. O maior presente é a amizade. 🤍";
+        // Efeito de partículas ao fundo
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        const extraMessage = "Espero que tenha gostado! Clique novamente no botao!";
+        const particles = [];
+        for(let i = 0; i < 50; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2 + 1,
+                speed: Math.random() * 0.5 + 0.2
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#c61c44';
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                p.y -= p.speed;
+                if(p.y < 0) p.y = canvas.height;
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Lógica do Presente
+        const loveMessage = "O melhor presente não é algo que dá pra pegar ou ver. O maior presente é a amizade. 🤍";
+        const extraMessage = "Espero que tenha gostado! Clique novamente no botão!";
         const citationText = "\"Uma vez li em algum lugar, todo esforço feito para pessoas que você sente algo especial nunca será perdido!\"";
+
+        const promiseCheck = document.getElementById('promise-check');
+        const actionButton = document.getElementById('actionButton');
+        const warningText = document.getElementById('warningText');
+
+        promiseCheck.addEventListener('change', function() {
+            if (this.checked) {
+                actionButton.disabled = false;
+                warningText.textContent = "Acesso Liberado! ✨";
+                warningText.classList.add('warning-active');
+            } else {
+                actionButton.disabled = true;
+                warningText.textContent = "(aceite o checkbox para continuar)";
+                warningText.classList.remove('warning-active');
+            }
+        });
 
         function openGift() {
             const giftBox = document.getElementById('giftBox');
             const message = document.getElementById('message');
             const citation = document.getElementById('citation');
             const audio = document.getElementById('backgroundAudio');
-            const actionButton = document.getElementById('actionButton');
+
+            document.getElementById('containerCheck').style.display = 'none';
+            warningText.style.display = 'none';
 
             audio.currentTime = 0;
             audio.play();
