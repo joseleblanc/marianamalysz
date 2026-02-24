@@ -28,7 +28,32 @@
             position: relative;
         }
 
-        /* Fundo Dinâmico Subtil */
+        /* Container do YouTube 16:9 */
+        #videoContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease;
+        }
+
+        #player {
+            width: 100%;
+            max-width: 800px; /* Tamanho ideal para desktop */
+            aspect-ratio: 16 / 9; /* Mantém a proporção exata */
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(198, 28, 68, 0.4);
+            border: 2px solid rgba(198, 28, 68, 0.3);
+        }
+
+        /* Fundo Dinâmico */
         #bg-canvas {
             position: absolute;
             top: 0;
@@ -70,7 +95,7 @@
             outline: none;
             transition: all 0.3s;
             width: 250px;
-            display: none; /* Inicialmente escondido */
+            display: none;
         }
 
         input[type="text"]:focus {
@@ -92,6 +117,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: bold;
+            margin-top: 10px;
         }
 
         .button:hover {
@@ -106,16 +132,13 @@
             max-width: 400px;
         }
 
-        /* Animação de erro (shake) */
-        .error-shake {
-            animation: shake 0.5s;
-        }
-
+        /* Animações */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
             75% { transform: translateX(10px); }
         }
+        .error-shake { animation: shake 0.5s; }
 
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-30px); }
@@ -127,7 +150,6 @@
             to { opacity: 1; }
         }
 
-        /* Controle de volume */
         .volume-control {
             position: absolute;
             bottom: 30px;
@@ -138,73 +160,122 @@
             padding: 10px 20px;
             border-radius: 30px;
         }
-
-        #volumeSlider {
-            accent-color: #c61c44;
-        }
     </style>
 </head>
 <body>
 
-    <canvas id="bg-canvas"></canvas>
+    <div id="videoContainer">
+        <div id="player"></div>
+        <p id="videoHint" style="margin-top: 20px; font-size: 1.1em; color: #f0f0f0; font-style: italic;">
+            Assista a mensagem completa para começar... ❤️
+        </p>
+    </div>
 
-    <div id="gameContent">
-        <h1>Um pequeno desafio...</h1>
-        <p>Para provar que é você, que dia nos vimos pela primeira vez?</p>
-        
-        <div class="input-container">
-            <button class="button" id="startButton" onclick="startGame()">Começar Desafio</button>
-            <input type="text" id="guessInput" placeholder="DD/MM/AAAA" maxlength="10" oninput="formatDate()">
-            <button class="button" id="submitBtn" onclick="checkAnswer()" style="display: none;">Verificar</button>
-            <div id="feedback"></div>
+    <div id="mainWrapper" style="display: none; opacity: 0; transition: opacity 1.5s ease; width: 100%;">
+        <canvas id="bg-canvas"></canvas>
+
+        <div id="gameContent">
+            <h1>Um pequeno desafio...</h1>
+            <p>Para provar que é você, que dia nos vimos pela primeira vez?</p>
+            
+            <div class="input-container">
+                <button class="button" id="startButton" onclick="startGame()">Começar Desafio</button>
+                <input type="text" id="guessInput" placeholder="DD/MM/AAAA" maxlength="10" oninput="formatDate()">
+                <button class="button" id="submitBtn" onclick="checkAnswer()" style="display: none;">Verificar</button>
+                <div id="feedback"></div>
+            </div>
+        </div>
+
+        <div id="resultContent" style="display: none;">
+            <h1>Parabéns! ❤️</h1>
+            <div id="finalScore" style="color: #f0f0f0; line-height: 1.6; margin: 20px 0;"></div>
+            <button id="prizeButton" class="button" onclick="redirectToPrize()">Recolher Recompensa</button>
+        </div>
+
+        <audio id="backgroundAudio" src="sound.mp3" preload="auto" loop></audio>
+
+        <div class="volume-control">
+            <label style="font-size: 0.8em; color: #888;">Volume:</label>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.15" onchange="setVolume()">
         </div>
     </div>
 
-    <div id="resultContent" style="display: none;">
-        <h1>Parabéns! ❤️</h1>
-        <div id="finalScore" style="color: #f0f0f0; line-height: 1.6; margin: 20px 0;"></div>
-        <button id="prizeButton" class="button" onclick="redirectToPrize()">Recolher Recompensa</button>
-    </div>
-
-    <audio id="backgroundAudio" src="sound.mp3" preload="auto" loop></audio>
-
-    <div class="volume-control">
-        <label style="font-size: 0.8em; color: #888;">Volume:</label>
-        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.15" onchange="setVolume()">
-    </div>
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
-        // Efeito de partículas ao fundo
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const particles = [];
-        for(let i = 0; i < 50; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 2 + 1,
-                speed: Math.random() * 0.5 + 0.2
+        // --- CONFIGURAÇÃO DO PLAYER ---
+        let player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: 'j2oV0Cjm1nc', // Troque pelo ID do seu vídeo!
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 1,
+                    'rel': 0,
+                    'modestbranding': 1,
+                    'origin': window.location.origin
+                },
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
             });
         }
 
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#c61c44';
-            particles.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-                p.y -= p.speed;
-                if(p.y < 0) p.y = canvas.height;
-            });
-            requestAnimationFrame(animate);
+        // Detecta quando o vídeo termina
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.ENDED) {
+                revealGame();
+            }
         }
-        animate();
 
-        // Lógica do Jogo
+        function revealGame() {
+            const videoContainer = document.getElementById('videoContainer');
+            const mainWrapper = document.getElementById('mainWrapper');
+            
+            videoContainer.style.opacity = '0';
+            setTimeout(() => {
+                videoContainer.style.display = 'none';
+                mainWrapper.style.display = 'block';
+                setTimeout(() => { 
+                    mainWrapper.style.opacity = '1';
+                    initParticles(); 
+                }, 50);
+            }, 1000);
+        }
+
+        // --- PARTÍCULAS ---
+        function initParticles() {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            for(let i = 0; i < 50; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speed: Math.random() * 0.5 + 0.2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#c61c44';
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    p.y -= p.speed;
+                    if(p.y < 0) p.y = canvas.height;
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // --- LÓGICA DO JOGO ---
         const correctAnswers = ["07/02/23", "07/02/2023", "7 de fevereiro", "7/2", "7 de fev", "07-02-2023", "7-2-23", "7 fevereiro"];
         const hints = [
             "Dica: Foi no início de Fevereiro de 2023...",
