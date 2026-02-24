@@ -135,6 +135,33 @@
             font-size: 0.9em;
             color: #444;
         }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+            z-index: 10;
+        }
+
+        .button-next {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            color: white;
+            background: linear-gradient(135deg, #c61c44, #b10d37);
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(198, 28, 68, 0.3);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .button-next:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(198, 28, 68, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -177,8 +204,12 @@
         <br><br>    
         Esse é o projeto que pude lhe entregar. Obrigado por tudo! Cada linha escrita tem um significado especial, cada parágrafo é uma nova inspiração. Espero que isso tenha te agradado.
     </div>
+    <div class="nav-container">
+        <a href="cascata.html" class="button-next">Veja o que me admira em você</a>
+    </div>
 
     <footer>Feito com ❤️ para Mari</footer>
+    
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>

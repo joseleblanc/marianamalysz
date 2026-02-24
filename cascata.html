@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cascata de Memórias</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: black;
+            color: #c61c44;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Tela de Entrada Padrão */
+        #start-screen {
+            position: absolute;
+            z-index: 100;
+            text-align: center;
+            background: black;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s ease;
+        }
+
+        #start-screen h1 {
+            font-size: 2.2em;
+            color: #c61c44;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        /* Botão Arredondado Padrão do Site */
+        .btn-standard {
+            padding: 15px 45px;
+            background-color: #c61c44;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(198, 28, 68, 0.3);
+        }
+
+        .btn-standard:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(198, 28, 68, 0.5);
+        }
+
+        /* Container da Cascata */
+        #cascade-container {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center; 
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .phrase {
+            position: absolute;
+            white-space: nowrap;
+            font-weight: bold;
+            text-align: center;
+            will-change: transform, opacity;
+            animation-name: fall-focused;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+            color: #ffffff;
+            text-shadow: 0 0 12px rgba(198, 28, 68, 0.9);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        @keyframes fall-focused {
+            0% { transform: translateY(-10vh) translateX(-50%) scale(0.8); opacity: 0; filter: blur(8px); }
+            15% { opacity: 1; filter: blur(0px); transform: translateY(10vh) translateX(-50%) scale(1); }
+            85% { opacity: 1; filter: blur(0px); }
+            100% { transform: translateY(110vh) translateX(-50%) scale(1.2); opacity: 0; filter: blur(4px); }
+        }
+
+        .vignette {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 20%, black 120%);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        #bg-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 1;
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        <h1>Está pronta para ver?</h1>
+        <button class="btn-standard" onclick="iniciarExperiencia()">Sim, estou</button>
+    </div>
+
+    <audio id="musicaFundo" loop>
+        <source src="musica_cascata.mp3" type="audio/mpeg">
+    </audio>
+
+    <canvas id="bg-canvas"></canvas>
+    <div id="cascade-container"></div>
+    <div class="vignette"></div>
+
+    <script>
+        // LISTA ORGANIZADA POR ORDEM DE APARIÇÃO
+        const phrases = [
+            "Sua educação", 
+            "Nossas risadas", 
+            "07/02/2023", 
+            "Sua simpatia", 
+            "Fez meu ano passar mais rápido", 
+            "Nossa amizade",
+            "Conversas inesquecíveis", 
+            "Seu jeito único", 
+            "Os bons momentos",
+            "Respeito", 
+            "Carinho", 
+            "Sinceridade", 
+            "O jogo que você gostava",
+            "Sua ligação familiar", 
+            "Exemplo de pessoa", 
+            "Como você se importa com os outros",
+            "O brilho do seu olhar", 
+            "Sua maturidade", 
+            "Perdão pelas falhas", 
+            "Obrigado por ser você"
+        ];
+
+        let currentIndex = 0; // Contador para a ordem sequencial
+        const container = document.getElementById('cascade-container');
+
+        function iniciarExperiencia() {
+            const musica = document.getElementById('musicaFundo');
+            musica.volume = 0.5;
+            musica.play();
+
+            document.getElementById('start-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('start-screen').style.display = 'none';
+                
+                // Dispara a primeira frase
+                createPhrase();
+                // Define o intervalo para as próximas (3.8 segundos para não embolar)
+                setInterval(createPhrase, 3800); 
+            }, 1500);
+        }
+
+        function createPhrase() {
+            // Pega a frase na ordem do índice
+            const phraseText = phrases[currentIndex];
+
+            const el = document.createElement('div');
+            el.className = 'phrase';
+            el.innerText = phraseText;
+
+            // Duração lenta para leitura calma
+            const duration = 12; 
+
+            el.style.fontSize = "1.6em";
+            el.style.animationDuration = `${duration}s`;
+            
+            container.appendChild(el);
+
+            // Incrementa o índice para a próxima frase
+            currentIndex++;
+
+            // Se chegar no final da lista, volta para a primeira frase
+            if (currentIndex >= phrases.length) {
+                currentIndex = 0;
+            }
+
+            // Limpeza do HTML após a queda
+            setTimeout(() => el.remove(), duration * 1000);
+        }
+
+        // Partículas de fundo
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = Array.from({ length: 35 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            s: Math.random() * 1.5,
+            v: Math.random() * 0.3
+        }));
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#c61c44';
+            particles.forEach(p => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, 7); ctx.fill();
+                p.y -= p.v; if (p.y < 0) p.y = canvas.height;
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+    </script>
+</body>
+</html>
