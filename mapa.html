@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nosso Mapa de Memórias</title>
-    
+    <link rel="icon" href="favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
@@ -105,6 +105,10 @@
 </head>
 <body>
 
+    <audio id="map-audio" loop>
+        <source src="mapa-audio.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="sidebar">
         <h2>Locais Especiais</h2>
         <p class="instruction">Explore um local por vez para liberar o próximo</p>
@@ -120,8 +124,10 @@
     
     <script>
         const map = L.map('map');
+        const bgAudio = document.getElementById('map-audio');
+        let audioIniciado = false;
 
-        // lyrs=s -> Apenas Satélite (Sem nomes de ruas, lojas ou rótulos locais)
+        // lyrs=s -> Apenas Satélite limpo
         L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
             maxZoom: 20,
             subdomains:['mt0','mt1','mt2','mt3'],
@@ -181,6 +187,12 @@
         }
 
         function focarNoLocal(index) {
+            // Inicia a música no primeiro clique (interação do usuário)
+            if (!audioIniciado) {
+                bgAudio.play().catch(e => console.log("Erro ao tocar áudio:", e));
+                audioIniciado = true;
+            }
+
             const data = memorias[index];
             map.flyTo([data.lat, data.lng], 19, { duration: 2 });
 
