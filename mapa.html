@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosso Mapa de Memórias</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: black; font-family: 'Arial', sans-serif; color: white; display: flex; }
+
+        /* Barra Lateral */
+        #sidebar {
+            width: 320px;
+            height: 100vh;
+            background: rgba(10, 10, 10, 0.95);
+            border-right: 2px solid #c61c44;
+            z-index: 1001;
+            padding: 25px 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+        }
+
+        #sidebar h2 {
+            color: #c61c44;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .instruction {
+            font-size: 0.85em;
+            color: #888;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #memory-list { flex-grow: 1; overflow-y: auto; }
+
+        .memory-item {
+            background: rgba(198, 28, 68, 0.05);
+            border: 1px solid rgba(198, 28, 68, 0.2);
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .memory-item.active {
+            opacity: 1;
+            pointer-events: auto;
+            border-color: #c61c44;
+            background: rgba(198, 28, 68, 0.15);
+        }
+
+        .memory-item.visited {
+            opacity: 0.6;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #444;
+        }
+
+        /* Mapa */
+        #map { flex-grow: 1; height: 100vh; z-index: 1; background: #000; }
+
+        /* Popups */
+        .leaflet-popup-content-wrapper {
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            border: 1px solid #c61c44;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 1.05em;
+        }
+
+        .leaflet-popup-tip { background: #c61c44; }
+
+        /* Botão Final */
+        #next-page-btn {
+            display: none;
+            background: #c61c44;
+            color: white;
+            padding: 15px;
+            border-radius: 50px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+            box-shadow: 0 0 15px rgba(198, 28, 68, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: 40vh; border-right: none; border-bottom: 2px solid #c61c44; }
+            #map { height: 60vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>Locais Especiais</h2>
+        <p class="instruction">Explore um local por vez para liberar o próximo</p>
+        
+        <div id="memory-list"></div>
+
+        <a href="cascata.html" id="next-page-btn">Veja o que me admira em você →</a>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        const map = L.map('map');
+
+        // lyrs=s -> Apenas Satélite (Sem nomes de ruas, lojas ou rótulos locais)
+        L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3'],
+            attribution: '© Google Maps'
+        }).addTo(map);
+
+        const memorias = [
+            { 
+                lat: -24.041978, lng: -52.387693, 
+                local: "Colegio Estadual ", 
+                memoria: "Foi aqui que nossa história deu o primeiro passo em 07/02/2023, aonde nos conhecemos e rapidamente viramos amigos" 
+            },
+            { 
+                lat: -24.032675, lng: -52.370706, 
+                local: "Colegio Unidade Polo", 
+                memoria: "Aqui durante o demorado tempo de espera, você fez o tempo passar mais rapido com suas conversas, brincadeiras e o bully (o jogo do meu celular que você gostava.)" 
+            },
+            { 
+                lat: -24.013780, lng: -52.461128, 
+                local: "BR-487", 
+                memoria: "Nesse local que nao é exatamente um local, nós conversamos muito, nos contrariamos com o outro, mas tudo bem faz parte!" 
+            },
+            { 
+                lat: -24.085086, lng: -52.392638, 
+                local: "CEEP-Agrícola", 
+                memoria: "Um local que apenas dei valor quando estava acabando, mesmo pelas dificuldades, em 2024 no ultimo dia antes das ferias de julho você estava la! nesse dia eu resolvi que deveria realmente terminar esse site e um dia te mostrar." 
+            }
+        ];
+
+        let currentStep = 0;
+        const markers = [];
+        const bounds = L.latLngBounds();
+        const listContainer = document.getElementById('memory-list');
+        const nextBtn = document.getElementById('next-page-btn');
+
+        function renderJornada() {
+            listContainer.innerHTML = '';
+            memorias.forEach((item, index) => {
+                const btn = document.createElement('div');
+                btn.className = `memory-item ${index === currentStep ? 'active' : ''} ${index < currentStep ? 'visited' : ''}`;
+                btn.innerHTML = `<strong>${item.local}</strong>`;
+                
+                if (index === currentStep) {
+                    btn.onclick = () => focarNoLocal(index);
+                }
+                listContainer.appendChild(btn);
+
+                if(!markers[index]) {
+                    const marker = L.marker([item.lat, item.lng]).addTo(map);
+                    marker.bindPopup(`<div style="text-align:center"><b>${item.local}</b><br><br>${item.memoria}</div>`);
+                    markers[index] = marker;
+                    bounds.extend([item.lat, item.lng]);
+                }
+            });
+            
+            if (currentStep === 0) map.fitBounds(bounds, { padding: [50, 50] });
+        }
+
+        function focarNoLocal(index) {
+            const data = memorias[index];
+            map.flyTo([data.lat, data.lng], 19, { duration: 2 });
+
+            map.once('moveend', () => {
+                markers[index].openPopup();
+                
+                setTimeout(() => {
+                    if (currentStep === index) {
+                        currentStep++;
+                        if (currentStep >= memorias.length) {
+                            nextBtn.style.display = 'block';
+                        }
+                        renderJornada();
+                    }
+                }, 3000);
+            });
+        }
+
+        renderJornada();
+    </script>
+</body>
+</html>
