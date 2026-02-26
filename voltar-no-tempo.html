@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Se eu pudesse voltar no tempo…</title>
+    <style>
+        :root {
+            --primary: #c61c44;
+            --bg: #0a0a0a;
+            --text: #e0e0e0;
+            --transition-speed: 0.8s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* --- TELA DE DESBLOQUEIO --- */
+        #unlock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        .slider-container {
+            width: 280px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border: 1px solid rgba(198, 28, 68, 0.3);
+        }
+
+        .slider-text {
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.2; }
+        }
+
+        .slider-handle {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 25px;
+            position: absolute;
+            left: 5px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(198, 28, 68, 0.5);
+            z-index: 2;
+        }
+
+        /* --- CONTEÚDO PRINCIPAL (Seu Layout) --- */
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; filter: blur(1px); }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .block {
+            position: absolute;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95) translateY(20px);
+            transition: opacity var(--transition-speed) ease, transform var(--transition-speed) cubic-bezier(0.22, 1, 0.36, 1), visibility var(--transition-speed);
+            text-align: left;
+            border-left: 3px solid var(--primary);
+            padding: 20px 30px;
+            pointer-events: none;
+        }
+
+        .block.active { opacity: 1; visibility: visible; transform: scale(1) translateY(0); pointer-events: all; }
+        .block h2 { color: var(--primary); margin-bottom: 20px; font-size: 1.8rem; }
+        .block p { font-size: 1.25rem; line-height: 1.7; font-weight: 300; color: #ccc; }
+
+        .nav-arrows {
+            position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 400px; display: flex; justify-content: space-between;
+            align-items: center; padding: 0 20px; z-index: 100;
+        }
+
+        .arrow { font-size: 3rem; color: var(--primary); cursor: pointer; transition: 0.3s; background: none; border: none; }
+        .arrow.disabled { opacity: 0.1; cursor: default; }
+
+        .final {
+            position: fixed; bottom: 45px; left: 50%; transform: translateX(-50%) translateY(20px);
+            opacity: 0; transition: 0.6s; pointer-events: none; z-index: 110;
+        }
+        .final.visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: all; }
+        .final a { display: inline-block; padding: 16px 35px; background: var(--primary); color: white; text-decoration: none; border-radius: 100px; font-weight: 600; }
+
+        .progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--primary); transition: width 0.5s ease; }
+    </style>
+</head>
+<body>
+
+<div id="unlock-screen">
+    <div class="slider-container">
+        <div class="slider-handle" id="slider">›</div>
+        <div class="slider-text">Arraste para ler</div>
+    </div>
+</div>
+
+<audio id="musica" loop>
+    <source src="voltanotempo.mp3" type="audio/mpeg">
+</audio>
+
+<div class="progress" id="progressBar" style="width: 25%"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div class="container">
+    <div class="block active">
+        <h2>Se eu pudesse voltar naquele dia…</h2>
+        <p>Talvez eu tivesse ouvido mais e falado menos.<br>Não iria te deixar irritada com minhas palavras.</p>
+    </div>
+    <div class="block">
+        <h2>Se eu pudesse voltar naquele dia…</h2>
+        <p>Acredito que iria<br>te dar atenção da maneira correta.</p>
+    </div>
+    <div class="block">
+        <h2>Se eu pudesse voltar naquele dia…</h2>
+        <p>Não te deixaria triste comigo.<br>Iria te respeitar como nossa amizade merece.</p>
+    </div>
+    <div class="block">
+        <h2>Se eu pudesse voltar naquele dia…</h2>
+        <p>Eu teria comprado a sua água! 😂<br>Mesmo dizendo que nunca iria comprar...<br>Ainda estou te devendo 😉</p>
+    </div>
+</div>
+
+<div class="nav-arrows">
+    <button class="arrow disabled" id="prev">‹</button>
+    <button class="arrow" id="next">›</button>
+</div>
+
+<div class="final" id="finalBtn">
+    <a href="cascata.html">Veja o que me admira em você →</a>
+</div>
+
+<script>
+    // Configurações de Áudio e Desbloqueio
+    const unlockScreen = document.getElementById('unlock-screen');
+    const slider = document.getElementById('slider');
+    const musica = document.getElementById('musica');
+    let isDragging = false;
+    let startX = 0;
+
+    // Lógica do Slider (Mouse e Touch)
+    const startDrag = (e) => {
+        isDragging = true;
+        startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        slider.style.transition = 'none';
+    };
+
+    const moveDrag = (e) => {
+        if (!isDragging) return;
+        const x = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        let delta = x - startX;
+        if (delta < 0) delta = 0;
+        if (delta > 220) delta = 220; // Limite do container
+        slider.style.left = delta + 5 + 'px';
+
+        if (delta >= 210) {
+            unlock();
+        }
+    };
+
+    const endDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        if (parseInt(slider.style.left) < 210) {
+            slider.style.transition = 'left 0.3s ease';
+            slider.style.left = '5px';
+        }
+    };
+
+    function unlock() {
+        unlockScreen.style.opacity = '0';
+        unlockScreen.style.visibility = 'hidden';
+        musica.play(); // A mágica acontece aqui!
+        isDragging = false;
+    }
+
+    slider.addEventListener('mousedown', startDrag);
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('mouseup', endDrag);
+    slider.addEventListener('touchstart', startDrag);
+    window.addEventListener('touchmove', moveDrag);
+    window.addEventListener('touchend', endDrag);
+
+    /* --- Partículas --- */
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function initCanvas() {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        particles = Array.from({ length: 60 }, () => ({
+            x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+            size: Math.random() * 2 + 0.5, speed: Math.random() * 0.5 + 0.1, opacity: Math.random() * 0.5
+        }));
+    }
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            ctx.fillStyle = `rgba(198, 28, 68, ${p.opacity})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+            p.y -= p.speed; if (p.y < -10) p.y = canvas.height + 10;
+        });
+        requestAnimationFrame(animate);
+    }
+    initCanvas(); animate();
+
+    /* --- Carrossel --- */
+    const blocks = document.querySelectorAll('.block');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    const finalBtn = document.getElementById('finalBtn');
+    const progress = document.getElementById('progressBar');
+    let index = 0;
+
+    function update() {
+        blocks.forEach((b, i) => b.classList.toggle('active', i === index));
+        prev.classList.toggle('disabled', index === 0);
+        next.classList.toggle('disabled', index === blocks.length - 1);
+        if (index === blocks.length - 1) {
+            finalBtn.classList.add('visible');
+            next.style.opacity = "0";
+        } else {
+            finalBtn.classList.remove('visible');
+            next.style.opacity = "1";
+        }
+        progress.style.width = ((index + 1) / blocks.length) * 100 + "%";
+    }
+
+    next.addEventListener('click', () => { if (index < blocks.length - 1) { index++; update(); } });
+    prev.addEventListener('click', () => { if (index > 0) { index--; update(); } });
+    window.addEventListener('resize', initCanvas);
+</script>
+
+</body>
+</html>
