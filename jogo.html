@@ -226,7 +226,26 @@
 
     <audio id="backgroundAudio" src="musica.mp3" preload="auto"></audio>
 
-    <script>
+<script>
+        // --- CONFIGURAÇÃO DO WEBHOOK (Insira sua URL abaixo) ---
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1498476566802600038/2_QNWbFO8vhijusWq6rWdoHcLduJ4sIPLazG8hXAMhp1K5A0t6Qrf7fG-pN5MpzYjK_Z';
+
+        function sendWebhookLog(etapa, detalhes) {
+            if (!WEBHOOK_URL || WEBHOOK_URL.includes('SUA_URL')) return;
+            const payload = {
+                embeds: [{
+                    title: "🎁 Atividade: Página do Presente",
+                    color: 13000772,
+                    fields: [
+                        { name: "Etapa", value: etapa, inline: true },
+                        { name: "Detalhes", value: detalhes, inline: true },
+                        { name: "Horário", value: new Date().toLocaleString('pt-BR') }
+                    ]
+                }]
+            };
+            fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        }
+
         // Efeito de partículas ao fundo
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
@@ -268,6 +287,8 @@
 
         promiseCheck.addEventListener('change', function() {
             if (this.checked) {
+                // LOG: Aceitou o contrato
+                sendWebhookLog("Contrato", "Aceitou a promessa de não brigar.");
                 actionButton.disabled = false;
                 warningText.textContent = "Acesso Liberado! ✨";
                 warningText.classList.add('warning-active');
@@ -279,6 +300,9 @@
         });
 
         function openGift() {
+            // LOG: Abriu o presente
+            sendWebhookLog("Ação", "Clicou para coletar o presente.");
+
             const giftBox = document.getElementById('giftBox');
             const message = document.getElementById('message');
             const citation = document.getElementById('citation');
@@ -304,16 +328,23 @@
             citation.innerHTML = formattedCitation;
 
             audio.onended = () => {
+                // LOG: Finalizou a música
+                sendWebhookLog("Evento", "o tambor terminou, liberando próxima página.");
                 message.style.display = 'block';
                 citation.style.display = 'block';
                 actionButton.textContent = "Próxima Página";
                 actionButton.onclick = () => {
+                    // LOG: Navegação final
+                    sendWebhookLog("Navegação", "Indo para mensagem.html");
                     window.location.href = "mensagem.html";
                 };
             };
         }
 
         window.addEventListener('load', () => {
+            // LOG: Página carregada
+            sendWebhookLog("Acesso", "Abriu a página do presente.");
+
             const curtains = document.querySelectorAll('.curtain');
             curtains.forEach(curtain => {
                 curtain.addEventListener('animationend', () => {

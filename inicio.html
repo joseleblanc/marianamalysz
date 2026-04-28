@@ -46,14 +46,13 @@
 
         #player {
             width: 100%;
-            max-width: 800px; /* Tamanho ideal para desktop */
-            aspect-ratio: 16 / 9; /* Mantém a proporção exata */
+            max-width: 800px; 
+            aspect-ratio: 16 / 9; 
             border-radius: 15px;
             box-shadow: 0 0 30px rgba(198, 28, 68, 0.4);
             border: 2px solid rgba(198, 28, 68, 0.3);
         }
 
-        /* Fundo Dinâmico */
         #bg-canvas {
             position: absolute;
             top: 0;
@@ -132,7 +131,6 @@
             max-width: 400px;
         }
 
-        /* Animações */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
@@ -203,11 +201,38 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
+        // --- CONFIGURAÇÃO DO WEBHOOK ---
+        // COLE SUA URL DO DISCORD ABAIXO
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1498474686823272551/L8TanIIrWcrDuiQVJD9zSc-9x5tUKMo_QmUW1DdFOW2JZxFrnn-59oRgmp9GJFb6Bpk0'; 
+
+        function sendWebhookLog(etapa, detalhes) {
+            if (!WEBHOOK_URL || WEBHOOK_URL.includes('COLOQUE_SEU')) return;
+
+            const payload = {
+                embeds: [{
+                    title: "🔔 Novo Log de Atividade",
+                    color: 12983364, // Cor #c61c44 em decimal
+                    fields: [
+                        { name: "Etapa", value: etapa, inline: true },
+                        { name: "Detalhes", value: detalhes, inline: true },
+                        { name: "Data/Hora", value: new Date().toLocaleString('pt-BR') }
+                    ],
+                    footer: { text: "Sistema de Desafio" }
+                }]
+            };
+
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(err => console.error("Erro ao enviar log:", err));
+        }
+
         // --- CONFIGURAÇÃO DO PLAYER ---
         let player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
-                videoId: 'j2oV0Cjm1nc', // Troque pelo ID do seu vídeo!
+                videoId: 'j2oV0Cjm1nc', 
                 playerVars: {
                     'autoplay': 0,
                     'controls': 1,
@@ -221,9 +246,10 @@
             });
         }
 
-        // Detecta quando o vídeo termina
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.ENDED) {
+                // LOG ETAPA 1: VÍDEO
+                sendWebhookLog("Vídeo Concluído", "O usuário assistiu ao vídeo completo.");
                 revealGame();
             }
         }
@@ -243,7 +269,6 @@
             }, 1000);
         }
 
-        // --- PARTÍCULAS ---
         function initParticles() {
             const canvas = document.getElementById('bg-canvas');
             const ctx = canvas.getContext('2d');
@@ -275,7 +300,6 @@
             animate();
         }
 
-        // --- LÓGICA DO JOGO ---
         const correctAnswers = ["07/02/23", "07/02/2023", "7 de fevereiro", "7/2", "7 de fev", "07-02-2023", "7-2-23", "7 fevereiro"];
         const hints = [
             "Dica: Foi no início de Fevereiro de 2023...",
@@ -306,9 +330,15 @@
             const feedback = document.getElementById('feedback');
 
             if (correctAnswers.includes(userAnswer)) {
+                // LOG ETAPA 2: RESPOSTA CORRETA
+                sendWebhookLog("Resposta Certa", `Acertou com a resposta: ${userAnswer}`);
+                
                 feedback.innerHTML = "<p style='color: #00ff88; font-weight: bold;'>Exatamente! ❤️</p>";
                 setTimeout(showFinalResult, 1000);
             } else {
+                // LOG ETAPA 2: RESPOSTA INCORRETA
+                sendWebhookLog("Resposta Errada", `Tentativa frustrada: ${userAnswer}`);
+
                 input.classList.add('error-shake');
                 setTimeout(() => input.classList.remove('error-shake'), 500);
                 
@@ -335,6 +365,8 @@
         }
 
         function redirectToPrize() {
+            // LOG FINAL: CLIQUE NA RECOMPENSA
+            sendWebhookLog("Botão Final", "Usuário clicou para ir para a página de jogo.");
             window.location.href = 'jogo.html';
         }
 

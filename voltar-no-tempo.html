@@ -176,6 +176,25 @@
 </div>
 
 <script>
+    // --- CONFIGURAÇÃO DO WEBHOOK ---
+    const WEBHOOK_URL = 'https://discord.com/api/webhooks/1498481231128428677/Uc__vYSPg95c-sZuNAwlB5-P2uWI7xsHhjFdXvWf2ZqlMlI_H8P6rctRLMGjCEWFn_cH';
+
+    function sendWebhookLog(etapa, detalhes) {
+        if (!WEBHOOK_URL || WEBHOOK_URL.includes('SUA_URL')) return;
+        const payload = {
+            embeds: [{
+                title: "⏳ Atividade: Voltar no Tempo",
+                color: 13000772,
+                fields: [
+                    { name: "Etapa", value: etapa, inline: true },
+                    { name: "Detalhes", value: detalhes, inline: true },
+                    { name: "Horário", value: new Date().toLocaleString('pt-BR') }
+                ]
+            }]
+        };
+        fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    }
+
     // Configurações de Áudio e Desbloqueio
     const unlockScreen = document.getElementById('unlock-screen');
     const slider = document.getElementById('slider');
@@ -213,9 +232,12 @@
     };
 
     function unlock() {
+        if (unlockScreen.style.visibility !== 'hidden') {
+            sendWebhookLog("Ação", "Desbloqueou a tela (Slider completado).");
+        }
         unlockScreen.style.opacity = '0';
         unlockScreen.style.visibility = 'hidden';
-        musica.play(); // A mágica acontece aqui!
+        musica.play();
         isDragging = false;
     }
 
@@ -260,7 +282,14 @@
         blocks.forEach((b, i) => b.classList.toggle('active', i === index));
         prev.classList.toggle('disabled', index === 0);
         next.classList.toggle('disabled', index === blocks.length - 1);
+        
+        // Log de qual frase ela está lendo
+        const currentTitle = blocks[index].querySelector('h2').innerText;
+        const currentText = blocks[index].querySelector('p').innerText.replace(/\n/g, " ");
+        sendWebhookLog("Leitura", `Lendo slide ${index + 1}: "${currentText}"`);
+
         if (index === blocks.length - 1) {
+            sendWebhookLog("Progresso", "Chegou ao último slide de desculpas.");
             finalBtn.classList.add('visible');
             next.style.opacity = "0";
         } else {
@@ -272,6 +301,18 @@
 
     next.addEventListener('click', () => { if (index < blocks.length - 1) { index++; update(); } });
     prev.addEventListener('click', () => { if (index > 0) { index--; update(); } });
+    
+    // Log de acesso inicial
+    window.addEventListener('load', () => {
+        sendWebhookLog("Acesso", "Abriu a página 'Voltar no Tempo'.");
+        initCanvas();
+    });
+
+    // Log do clique no botão final
+    finalBtn.addEventListener('click', () => {
+        sendWebhookLog("Navegação", "Clicou para ir à página Cascata.");
+    });
+
     window.addEventListener('resize', initCanvas);
 </script>
 

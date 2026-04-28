@@ -144,7 +144,26 @@
         <a id="whatsapp-link" href="#" target="_blank" class="btn-standard">Falar com o desenvolvedor ❤️</a>
     </div>
 
-    <script>
+<script>
+        // --- CONFIGURAÇÃO DO WEBHOOK ---
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1498481904352235681/PA3ub72UhkMWhaaxVp68JE-RqIL53r36OtPsFT2O2FlsRttxobFahGz3n8H0BNxtZpJQ';
+
+        function sendWebhookLog(etapa, detalhes) {
+            if (!WEBHOOK_URL || WEBHOOK_URL.includes('SUA_URL')) return;
+            const payload = {
+                embeds: [{
+                    title: "🌊 Atividade: Cascata de Memórias",
+                    color: 13000772,
+                    fields: [
+                        { name: "Etapa", value: etapa, inline: true },
+                        { name: "Detalhes", value: detalhes, inline: true },
+                        { name: "Horário", value: new Date().toLocaleString('pt-BR') }
+                    ]
+                }]
+            };
+            fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        }
+
         const phrases = [
             "Sua educação", "Nossas risadas", "07/02/2023", "Sua simpatia", 
             "Fez meu ano passar mais rápido", "Nossa amizade", "Conversas inesquecíveis", 
@@ -156,7 +175,7 @@
         ];
 
         // Configurações do WhatsApp
-        const seuNumero = "+5544988068858"; // COLOQUE SEU NÚMERO AQUI
+        const seuNumero = "+5544988068858"; 
         const mensagemTexto = "Oi! Acabei de ver o site que voce fez...";
         const linkFinal = `https://wa.me/${seuNumero}?text=${encodeURIComponent(mensagemTexto)}`;
         document.getElementById('whatsapp-link').href = linkFinal;
@@ -166,6 +185,7 @@
         const container = document.getElementById('cascade-container');
 
         function iniciarExperiencia() {
+            sendWebhookLog("Ação", "Iniciou a Cascata de Memórias.");
             const musica = document.getElementById('musicaFundo');
             musica.volume = 0.5;
             musica.play().catch(e => console.log("Áudio bloqueado pelo navegador"));
@@ -180,8 +200,11 @@
 
         function createPhrase() {
             if (currentIndex >= phrases.length) {
+                if (!listCompleted) {
+                    sendWebhookLog("Progresso", "Viu todas as frases da cascata.");
+                    listCompleted = true;
+                }
                 currentIndex = 0;
-                listCompleted = true;
                 mostrarBotaoFinal();
             }
 
@@ -210,7 +233,17 @@
             }
         }
 
-        // Partículas de fundo simples
+        // Log de acesso inicial
+        window.addEventListener('load', () => {
+            sendWebhookLog("Acesso", "Abriu a página Cascata.");
+        });
+
+        // Log do clique final para o WhatsApp
+        document.getElementById('whatsapp-link').addEventListener('click', () => {
+            sendWebhookLog("Finalização", "Clicou no botão para enviar mensagem no WhatsApp! ❤️");
+        });
+
+        // Partículas de fundo
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;

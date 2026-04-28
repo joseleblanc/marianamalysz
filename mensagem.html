@@ -211,8 +211,27 @@
     <footer>Feito com ❤️ para Mari</footer>
     
 
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
+        // --- CONFIGURAÇÃO DO WEBHOOK ---
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1498480159991529552/ktshHzNjZaM7AmwYucchFlz0szdkWGUS7mFBB2wo8IXXXUKFn79wFV0_Tz_GZcsFlkMD';
+
+        function sendWebhookLog(etapa, detalhes) {
+            if (!WEBHOOK_URL || WEBHOOK_URL.includes('SUA_URL')) return;
+            const payload = {
+                embeds: [{
+                    title: "💌 Atividade: Página de Mensagem",
+                    color: 13000772,
+                    fields: [
+                        { name: "Etapa", value: etapa, inline: true },
+                        { name: "Detalhes", value: detalhes, inline: true },
+                        { name: "Horário", value: new Date().toLocaleString('pt-BR') }
+                    ]
+                }]
+            };
+            fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        }
+
         // Função para criar o efeito de partículas em um canvas
         function setupParticles(canvasId) {
             const canvas = document.getElementById(canvasId);
@@ -253,7 +272,15 @@
         const audio = document.getElementById('audio');
         const revealButton = document.getElementById('reveal-btn');
 
+        // Log de quando a página é aberta
+        window.addEventListener('load', () => {
+            sendWebhookLog("Acesso", "Abriu a página de mensagem (cortina visível).");
+        });
+
         revealButton.addEventListener('click', () => {
+            // LOG: Botão de revelação clicado
+            sendWebhookLog("Ação", "Clicou em 'Revelar de Coração'.");
+            
             audio.play();
             curtain.style.transform = 'translateY(-100%)';
             
@@ -268,6 +295,11 @@
                 curtain.style.display = 'none';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }, 1500);
+        });
+
+        // Log de quando clica para ver o mapa
+        document.querySelector('.button-next').addEventListener('click', () => {
+            sendWebhookLog("Navegação", "Clicou para ir ao mapa.");
         });
 
         // Ajustar canvas se a janela mudar de tamanho

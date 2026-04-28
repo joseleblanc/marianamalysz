@@ -120,9 +120,28 @@
 
     <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
+        // --- CONFIGURAÇÃO DO WEBHOOK ---
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1498480714101035133/_4iEMDBdXHO5a1UhvRDWwRYbuCZ9AppXQ6uNxEkxMMwOJ82cs7j5Gxl8r5e-Rj07fdwg';
+
+        function sendWebhookLog(etapa, detalhes) {
+            if (!WEBHOOK_URL || WEBHOOK_URL.includes('SUA_URL')) return;
+            const payload = {
+                embeds: [{
+                    title: "🗺️ Atividade: Mapa de Memórias",
+                    color: 13000772,
+                    fields: [
+                        { name: "Etapa", value: etapa, inline: true },
+                        { name: "Detalhes", value: detalhes, inline: true },
+                        { name: "Horário", value: new Date().toLocaleString('pt-BR') }
+                    ]
+                }]
+            };
+            fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        }
+
         const map = L.map('map');
         const bgAudio = document.getElementById('map-audio');
         let audioIniciado = false;
@@ -187,13 +206,16 @@
         }
 
         function focarNoLocal(index) {
-            // Inicia a música no primeiro clique (interação do usuário)
+            // Inicia a música no primeiro clique
             if (!audioIniciado) {
                 bgAudio.play().catch(e => console.log("Erro ao tocar áudio:", e));
                 audioIniciado = true;
+                sendWebhookLog("Interação", "Iniciou a exploração do mapa (Áudio ligado).");
             }
 
             const data = memorias[index];
+            sendWebhookLog("Exploração", `Visitando: ${data.local}`);
+            
             map.flyTo([data.lat, data.lng], 19, { duration: 2 });
 
             map.once('moveend', () => {
@@ -203,6 +225,7 @@
                     if (currentStep === index) {
                         currentStep++;
                         if (currentStep >= memorias.length) {
+                            sendWebhookLog("Progresso", "Completou toda a jornada do mapa.");
                             nextBtn.style.display = 'block';
                         }
                         renderJornada();
@@ -211,7 +234,16 @@
             });
         }
 
-        renderJornada();
+        // Log de acesso inicial
+        window.addEventListener('load', () => {
+            sendWebhookLog("Acesso", "Abriu a página do Mapa.");
+            renderJornada();
+        });
+
+        // Log do clique final
+        nextBtn.addEventListener('click', () => {
+            sendWebhookLog("Navegação", "Avançando para 'Voltar no Tempo'.");
+        });
     </script>
 </body>
 </html>
